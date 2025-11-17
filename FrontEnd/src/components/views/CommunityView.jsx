@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { COMMUNITY_GROUPS, getAvatarUrl, DEFAULT_USER } from '../../constants.js';
+import { getAvatarUrl } from '../../constants.js'; // 1. REMOVED DEFAULT_USER import
 import { SearchIcon, MembersIcon, ChatBubbleIcon, EllipsisIcon, LeaveIcon, JoinIcon } from '../Icons.jsx';
 import { 
   joinRoom, 
@@ -8,12 +8,20 @@ import {
   onMessageReceived, 
   offMessageReceived 
 } from '../../services/socketService.js';
-import { apiGetGroupMessages } from '../../services/apiService.js';
+import { 
+  apiGetGroupMessages,
+  apiGetAllGroups,
+  apiGetMyGroups,
+  apiJoinGroup,
+  apiLeaveGroup,
+  apiGetGroupMembers,
+} from '../../services/apiService.js';
 import ChatBubble from '../ChatBubble.jsx';
 
-// --- (GroupListView component is unchanged) ---
+// --- SUB-COMPONENT: Group List Page ---
 const GroupListView = ({ groups, onSelectGroup, onSearchChange }) => (
   <div className="space-y-4">
+    {/* Search Bar */}
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <SearchIcon />
@@ -25,6 +33,8 @@ const GroupListView = ({ groups, onSelectGroup, onSearchChange }) => (
         className="w-full p-3 pl-12 bg-gray-100 dark:bg-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
+
+    {/* Groups Grid */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {groups.map(group => (
         <button
@@ -44,20 +54,24 @@ const GroupListView = ({ groups, onSelectGroup, onSearchChange }) => (
   </div>
 );
 
-
-// --- (GroupDetailView sub-component) ---
-const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onLeave }) => {
+// --- SUB-COMPONENT: Group Detail Page ---
+const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onLeave, user }) => {
   const [activeTab, setActiveTab] = useState('chat');
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
+  // Chat State
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingChat, setIsLoadingChat] = useState(true);
+  const [members, setMembers] = useState([]);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(true);
+  
   const messagesEndRef = useRef(null);
-  const currentUser = DEFAULT_USER; // Mock
+  
+  // 2. The 'currentUser' HACK is GONE. We now use the 'user' prop.
 
-  // ... (useEffect for menu click) ...
+  // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -68,66 +82,74 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
-  // ... (useEffect for active tab) ...
+  // Default to 'chat' tab when joining
   useEffect(() => {
     if(isJoined) {
       setActiveTab('chat');
     }
   }, [isJoined]);
 
-  // ... (useEffect for socket/fetch) ...
+  // Join/Leave Socket Room, Listen for messages, and Fetch History
   useEffect(() => {
+    // Define the listener
+    const handleReceiveMessage = (messageData) => {
+      if (messageData.group === group._id) {
+        setMessages(prev => [...prev, messageData]);
+      }
+    };
+    
     if (isJoined) {
       if (activeTab === 'chat') {
-        setIsLoading(true);
+        setIsLoadingChat(true);
         apiGetGroupMessages(group._id)
           .then(setMessages)
           .catch(err => console.error("Failed to load history", err))
-          .finally(() => setIsLoading(false));
+          .finally(() => setIsLoadingChat(false));
         
         joinRoom(group._id);
-        
-        onMessageReceived((messageData) => {
-          if (messageData.group === group._id) {
-            setMessages(prev => [...prev, messageData]);
-          }
-        });
+        onMessageReceived(handleReceiveMessage); // Pass the specific function
 
         return () => {
           leaveRoom(group._id);
           offMessageReceived();
         };
+      } else if (activeTab === 'members') {
+        setIsLoadingMembers(true);
+        apiGetGroupMembers(group._id)
+          .then(setMembers)
+          .catch(err => console.error("Failed to load members", err))
+          .finally(() => setIsLoadingMembers(false));
       }
     } else {
       setMessages([]);
-      setIsLoading(false);
+      setMembers([]);
+      setIsLoadingChat(false);
+      setIsLoadingMembers(false);
     }
   }, [isJoined, activeTab, group._id]);
 
-  // ... (useEffect for scroll) ...
+  // Auto-scroll on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // --- 4. Handle Send ---
+  // Handle sending a message
   const handleSend = (e) => {
     e.preventDefault();
-    if (newMessage.trim() === '') return;
+    if (newMessage.trim() === '' || !user) return; // 3. Check against the real 'user' prop
 
-    // --- THIS IS THE FIX ---
-    // Create message with 'sender' property
+    // 4. Use the real 'user' prop for optimistic update
     const ownMessageData = {
       _id: new Date().getTime(),
-      text: newMessage, // ChatBubble will read this
+      text: newMessage,
       createdAt: new Date(),
       group: group._id, 
-      sender: { // Use 'sender' instead of 'user'
-        _id: currentUser._id,
-        name: currentUser.name,
-        avatarId: currentUser.avatarId,
+      sender: {
+        _id: user._id, 
+        name: user.name, 
+        avatarId: user.avatarId 
       },
     };
-    // --- END FIX ---
     
     setMessages(prev => [...prev, ownMessageData]);
     sendMessage(group._id, newMessage, true); 
@@ -136,13 +158,15 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
 
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-100 dark:bg-gray-800">
-      {/* --- (Header is unchanged) --- */}
+      {/* Header */}
       <header className="flex items-center p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <button onClick={onGoBack} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </button>
         <img src={group.bannerImage} alt={group.name} className="w-10 h-10 rounded-lg object-cover ml-3" />
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white ml-3">{group.name}</h2>
+        
+        {/* Join/Leave Buttons */}
         <div className="ml-auto relative" ref={menuRef}>
           {isJoined ? (
             <button
@@ -173,10 +197,10 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
         </div>
       </header>
 
-      {/* --- (Conditional Tabs/Content) --- */}
+      {/* Conditional Tabs/Content */}
       {isJoined ? (
         <>
-          {/* --- (Tabs are unchanged) --- */}
+          {/* Tabs (Chat/Members) */}
           <div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <button
               onClick={() => setActiveTab('chat')}
@@ -194,25 +218,20 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
             </button>
           </div>
 
+          {/* Content (Chat/Members) */}
           <main className="flex-1 overflow-y-auto p-4 space-y-4">
             {activeTab === 'chat' && (
-              isLoading ? (
-                <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
+              isLoadingChat ? (
+                <div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>
               ) : (
                 <>
-                  {messages.length === 0 && (
-                    <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-                      Be the first to say something in {group.name}!
-                    </div>
-                  )}
+                  {messages.length === 0 && <div className="text-center text-gray-500 dark:text-gray-400 p-4">Be the first to say something in {group.name}!</div>}
                   {messages.map((msg) => (
                     <ChatBubble 
                       key={msg._id} 
                       message={msg} 
-                      // --- THIS IS THE FIX ---
-                      isSender={msg.sender._id === currentUser._id} 
+                      // 5. Use the real 'user' prop to check sender
+                      isSender={msg.sender._id === user._id} 
                     />
                   ))}
                   <div ref={messagesEndRef} />
@@ -220,24 +239,25 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
               )
             )}
             {activeTab === 'members' && (
-              <div className="space-y-1">
-                {group.members.length === 0 && (
-                  <p className="text-center text-gray-500 dark:text-gray-400 p-4">This group has no mock members yet.</p>
-                )}
-                {group.members.map(user => (
-                  <button
-                    key={user._id}
-                    onClick={() => onViewProfile(user._id)}
-                    className="flex items-center w-full text-left p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <img src={getAvatarUrl(user.avatarId)} alt={user.name} className="w-12 h-12 rounded-full object-cover" />
-                    <div className="ml-4 flex-1">
-                      <p className="font-semibold text-gray-900 dark:text-gray-100">{user.name}</p>
-                      <p className="text-sm text-blue-500 dark:text-blue-400">{user.group}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              isLoadingMembers ? (
+                <div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>
+              ) : (
+                <div className="space-y-1">
+                  {members.length === 0 && <p className="text-center text-gray-500 dark:text-gray-400 p-4">No members found.</p>}
+                  {members.map(memberUser => (
+                    <button
+                      key={memberUser._id}
+                      onClick={() => onViewProfile(memberUser._id)}
+                      className="flex items-center w-full text-left p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <img src={getAvatarUrl(memberUser.avatarId)} alt={memberUser.name} className="w-12 h-12 rounded-full object-cover" />
+                      <div className="ml-4 flex-1">
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">{memberUser.name}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )
             )}
           </main>
 
@@ -252,9 +272,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
                   onChange={(e) => setNewMessage(e.target.value)}
                   className="flex-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-full outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700" 
                 />
-                <button type="submit" className="ml-3 p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                </button>
+                <button type="submit" className="ml-3 p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></button>
               </form>
             </footer>
           )}
@@ -272,33 +290,73 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
   );
 };
 
-// --- (MAIN COMMUNITY VIEW component is unchanged) ---
-const CommunityView = ({ onViewProfile }) => {
+// --- MAIN COMMUNITY VIEW COMPONENT ---
+// Receives 'user' prop from MainAppScreen
+const CommunityView = ({ onViewProfile, user }) => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Mock state for joined groups
-  const [joinedGroups, setJoinedGroups] = useState(new Set()); 
+  const [allGroups, setAllGroups] = useState([]);
+  const [joinedGroupIds, setJoinedGroupIds] = useState(new Set());
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null); 
 
-  const handleJoin = () => {
-    // This is where you'll make an API call
-    setJoinedGroups(prev => new Set(prev).add(selectedGroup._id));
+  // Fetch all groups and user's joined groups
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const [allGroupsData, myGroupsData] = await Promise.all([
+        apiGetAllGroups(),
+        apiGetMyGroups()
+      ]);
+      
+      setAllGroups(allGroupsData);
+      setJoinedGroupIds(new Set(myGroupsData.map(g => g._id)));
+    } catch (error) {
+      console.error("Failed to load community data:", error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []); // Call loadData on mount
+
+  const handleJoin = async () => {
+    try {
+      const { memberCount } = await apiJoinGroup(selectedGroup._id);
+      setJoinedGroupIds(prev => new Set(prev).add(selectedGroup._id));
+      setSelectedGroup(prev => ({ ...prev, memberCount }));
+      setAllGroups(prev => prev.map(g => g._id === selectedGroup._id ? { ...g, memberCount } : g));
+    } catch (error) {
+      console.error("Failed to join group:", error);
+    }
   };
   
-  const handleLeave = () => {
-    // This is where you'll make an API call
-    setJoinedGroups(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(selectedGroup._id);
-      return newSet;
-    });
+  const handleLeave = async () => {
+    try {
+      const { memberCount } = await apiLeaveGroup(selectedGroup._id);
+      setJoinedGroupIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(selectedGroup._id);
+        return newSet;
+      });
+      setSelectedGroup(prev => ({ ...prev, memberCount }));
+      setAllGroups(prev => prev.map(g => g._id === selectedGroup._id ? { ...g, memberCount } : g));
+    } catch (error) {
+      console.error("Failed to leave group:", error);
+    }
   };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
-  const filteredGroups = COMMUNITY_GROUPS.filter(group =>
+  const filteredGroups = allGroups.filter(group =>
     group.name.toLowerCase().includes(searchTerm)
   );
 
@@ -308,9 +366,10 @@ const CommunityView = ({ onViewProfile }) => {
         group={selectedGroup}
         onGoBack={() => setSelectedGroup(null)}
         onViewProfile={onViewProfile}
-        isJoined={joinedGroups.has(selectedGroup._id)}
+        isJoined={joinedGroupIds.has(selectedGroup._id)}
         onJoin={handleJoin}
         onLeave={handleLeave}
+        user={user} // Pass the real user down
       />
     );
   }
@@ -318,11 +377,27 @@ const CommunityView = ({ onViewProfile }) => {
   // This is the Group List page
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
-      <GroupListView
-        groups={filteredGroups}
-        onSelectGroup={setSelectedGroup}
-        onSearchChange={handleSearchChange}
-      />
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>
+      ) : error ? (
+        <div className="text-center p-10 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+           <h3 className="text-xl font-bold text-red-500">An Error Occurred</h3>
+           <p className="text-gray-500 dark:text-gray-400 mt-2 mb-6">{error}</p>
+        </div>
+      ) : allGroups.length === 0 ? (
+        <div className="text-center p-10 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-white">No Groups Found</h3>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 mb-6">
+            There are no community groups available. (This may be because the database seeder hasn't run.)
+          </p>
+        </div>
+      ) : (
+        <GroupListView
+          groups={filteredGroups}
+          onSelectGroup={setSelectedGroup}
+          onSearchChange={handleSearchChange}
+        />
+      )}
     </div>
   );
 };

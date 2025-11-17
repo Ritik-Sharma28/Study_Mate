@@ -38,18 +38,24 @@ const DmScreen = ({ user, onGoBack, currentUser }) => {
     };
   }, [currentUser, user]);
 
-  // 2. Listen for new messages
-  useEffect(() => {
-    onMessageReceived((messageData) => {
+  // --- 2. THIS IS THE FIX ---
+ useEffect(() => {
+    // Define the listener
+    const handleReceiveMessage = (messageData) => {
       if (messageData.dmRoom === roomId) {
         setMessages(prev => [...prev, messageData]);
       }
-    });
-
-    return () => {
-      offMessageReceived();
     };
-  }, [roomId]); 
+    
+    // Pass the function to the listener
+    onMessageReceived(handleReceiveMessage);
+
+    // Return a cleanup function
+    return () => {
+      offMessageReceived(); // No longer needs to pass the function
+    };
+  }, [roomId]); // Re-subscribe if the roomId changes
+  // --- END FIX ---
 
   // 3. Auto-scroll to bottom
   useEffect(() => {

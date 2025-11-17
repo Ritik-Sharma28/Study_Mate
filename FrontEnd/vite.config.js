@@ -7,6 +7,11 @@ export default defineConfig({
   server: {
     host: true,  
     proxy: {
+        '/api/v1': {
+        target: 'http://localhost:8000', // Your NEW Python server
+        changeOrigin: true,
+        secure: false,
+      },
       // String shorthand for simple targets
       '/api': {
         target: 'http://localhost:5000', // Your backend server
@@ -20,6 +25,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+    
     }
   }
 })

@@ -6,6 +6,7 @@ import ChatListView from './components/views/ChatListView.jsx';
 import UserProfileView from './components/views/UserProfileView.jsx';// 1. Import new view
 import { DEFAULT_USER } from './constants.js';
 import { connectSocket, disconnectSocket } from './services/socketService.js';
+import { apiLogout } from './services/apiService.js';
 
 const App = () => {
   // 2. Add 'chatList' to the view states
@@ -44,12 +45,20 @@ const App = () => {
     setCurrentView('main');
   }, []);
 
-  const handleLogout = useCallback(() => {
-    setLoggedInUser(null);
-    setCurrentView('auth');
-    disconnectSocket();
-    // TODO: Call API logout
+// --- 2. UPDATE handleLogout ---
+  const handleLogout = useCallback(async () => {
+    try {
+      await apiLogout(); // Call the backend to clear the cookie
+    } catch (err) {
+      console.error("Logout failed:", err); // Log error, but log out anyway
+    } finally {
+      // This runs whether the API call succeeds or fails
+      setLoggedInUser(null);
+      setCurrentView('auth');
+      disconnectSocket(); 
+    }
   }, []);
+  // --- END UPDATE ---
 
   const handleProfileUpdate = (newUserData) => {
     setLoggedInUser(newUserData);
@@ -118,11 +127,7 @@ const App = () => {
                   onGoBack={handleGoBackFromDm} 
                   currentUser={loggedInUser}
                 />;
-      case 'dm': 
-        return <DmScreen 
-                  user={chattingWith} 
-                  onGoBack={handleGoBackFromDm} // 6. Use new handler
-                />;
+  
       case 'auth': 
       default: 
         return <AuthScreen 

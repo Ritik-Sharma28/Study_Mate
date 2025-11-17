@@ -7,7 +7,6 @@ let socket;
 const URL = import.meta.env.VITE_API_BASE_URL === '/api' 
   ? undefined 
   : import.meta.env.VITE_API_BASE_URL;
-// --- END FIX ---
 
 export const connectSocket = () => {
   if (!socket) {
@@ -46,20 +45,28 @@ export const leaveRoom = (roomId) => {
   if (socket) socket.emit('leaveRoom', roomId);
 };
 
-export const sendMessage = (roomId, message) => {
-  if (socket) socket.emit('sendMessage', { roomId, message });
+// --- THIS IS THE FIX ---
+// 1. Accept 'isGroup' (which you were already passing from DmScreen)
+export const sendMessage = (roomId, message, isGroup) => {
+  if (socket) {
+    // 2. Pass 'isGroup' to the server in the data object
+    socket.emit('sendMessage', { roomId, message, isGroup });
+  }
 };
-
-// --- Listeners (Receiving data from server) ---
+// --- END FIX ---
 
 export const onMessageReceived = (callback) => {
   if (socket) {
-    socket.on('receiveMessage', (messageData) => {
-      callback(messageData);
-    });
+    // 1. Remove any old listeners to prevent duplicates
+    socket.removeAllListeners('receiveMessage'); 
+    // 2. Add the new, fresh listener
+    socket.on('receiveMessage', callback);
   }
 };
 
 export const offMessageReceived = () => {
-  if (socket) socket.off('receiveMessage');
+  if (socket) {
+    // 3. Remove all listeners for this event when a chat closes
+    socket.removeAllListeners('receiveMessage');
+  }
 };

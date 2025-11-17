@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { SUGGESTED_USERS, SKILLS, STUDY_TIMES, TEAM_PREFERENCES } from '../../constants.js';
+import { SKILLS, STUDY_TIMES, TEAM_PREFERENCES } from '../../constants.js';
 import { DmIcon } from '../Icons.jsx';
 import { getAvatarUrl } from '../../constants.js';
+import { apiFindPartners } from '../../services/apiService.js';
 
 // --- Helper: A Checkbox component for the UI ---
 const SkillCheckbox = ({ label, isChecked, onChange }) => (
@@ -20,11 +21,11 @@ const SkillCheckbox = ({ label, isChecked, onChange }) => (
   </label>
 );
 
-const FindPartnerView = ({ onStartChat , onViewProfile }) => {
+const FindPartnerView = ({ onStartChat, onViewProfile, user }) => {
     const [filters, setFilters] = useState({
       teamPref: TEAM_PREFERENCES[0], // 'Team' or 'Solo'
       studyTime: [],
-      skills: []
+      skills: [] // This state holds the *search filter*
     });
     
     const [results, setResults] = useState([]);
@@ -58,28 +59,24 @@ const FindPartnerView = ({ onStartChat , onViewProfile }) => {
     };
 
     // --- Search Logic ---
-    const handleFindMatches = () => {
+    const handleFindMatches = async () => {
+        if (!user) return; 
+
         setIsSearching(true);
         setHasSearched(false);
         setResults([]);
         setCurrentPage(1);
 
-        // --- MOCK API CALL ---
-        setTimeout(() => {
-            const matchedUsers = SUGGESTED_USERS.filter(user => {
-              // Note: This is a placeholder. Real logic will be on the backend.
-              // For now, we'll just check if they have at least one selected skill.
-              const skillMatch = filters.skills.length === 0 
-                ? true 
-                : filters.skills.some(skill => user.skills.includes(skill));
-              
-              return skillMatch;
-            });
+        try {
+            const matchedUsers = await apiFindPartners(user._id, filters);
             setResults(matchedUsers);
+        } catch (error) {
+            console.error("Failed to find partners:", error);
+            setResults([]); // Clear results on error
+        } finally {
             setIsSearching(false);
             setHasSearched(true);
-        }, 1500);
-        // --- END MOCK API CALL ---
+        }
     };
 
     // --- Pagination Logic ---
@@ -91,12 +88,11 @@ const FindPartnerView = ({ onStartChat , onViewProfile }) => {
     const goToPrevPage = () => setCurrentPage(p => Math.max(p - 1, 1));
 
     return (
-        <div className="max-w-3xl mx-auto space-y-6 p-4 md:p-6">
+        <div className="max-w-4xl mx-auto space-y-6 p-4 md:p-6">
             
             {/* --- FILTER SECTION --- */}
             <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm space-y-5">
               
-              {/* Preference */}
               <div>
                 <label className="text-lg font-semibold text-gray-800 dark:text-white">I'm looking for a...</label>
                 <div className="mt-3 flex gap-4">
@@ -118,7 +114,6 @@ const FindPartnerView = ({ onStartChat , onViewProfile }) => {
                 </div>
               </div>
 
-              {/* Study Time */}
               <div>
                 <label className="text-lg font-semibold text-gray-800 dark:text-white">Preferred Study Time</label>
                 <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -133,7 +128,6 @@ const FindPartnerView = ({ onStartChat , onViewProfile }) => {
                 </div>
               </div>
               
-              {/* Skills */}
               <div>
                 <label className="text-lg font-semibold text-gray-800 dark:text-white">Skills</label>
                 <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -148,7 +142,6 @@ const FindPartnerView = ({ onStartChat , onViewProfile }) => {
                 </div>
               </div>
 
-              {/* Search Button */}
               <button 
                 onClick={handleFindMatches} 
                 disabled={isSearching} 
@@ -174,18 +167,35 @@ const FindPartnerView = ({ onStartChat , onViewProfile }) => {
               {currentResults.length > 0 && (
                 <div className="space-y-3">
                     {currentResults.map(user => (
-                        
-                        <div key={user.name} className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                          <button onClick={() => onViewProfile(user._id)} className="flex items-center text-left flex-1 space-x-4">
-                          <img src={getAvatarUrl(user.avatarId)} alt={user.name} className="w-14 h-14 rounded-full object-cover" />
-                          <div className="flex-1">
-                              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user.name}</p>
-                              <div className="flex flex-wrap gap-1.5 mt-2">
-                                  {user.skills.map(s => <span key={s} className="text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{s}</span>)}
-                              </div>
-                          </div>
-                      </button>
-                            <button onClick={() => onStartChat(user)} className="p-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors">
+                        <div key={user._id} className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                            
+                            <button onClick={() => onViewProfile(user._id)} className="flex items-center text-left flex-1 space-x-4">
+                                <img src={getAvatarUrl(user.avatarId)} alt={user.name} className="w-14 h-14 rounded-full object-cover" />
+                                <div className="flex-1">
+                                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user.name}</p>
+                                    
+                                    {/* Show Match Reasons */}
+                                    {user._match_reasons && user._match_reasons.length > 0 && (
+                                      <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                        Match: {user._match_reasons.join(', ')}
+                                      </p>
+                                    )}
+                                    
+                                    {/* --- THIS IS THE FIX --- */}
+                                    {/* We now map over `user.domains` instead of `user.skills` */}
+                                    {/* And we add `|| []` as a safety check */}
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {(user.domains || []).map(domain => (
+                                          <span key={domain} className="text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+                                            {domain}
+                                          </span>
+                                        ))}
+                                    </div>
+                                    {/* --- END FIX --- */}
+                                </div>
+                            </button>
+                            
+                            <button onClick={() => onStartChat(user)} className="ml-4 p-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors flex-shrink-0">
                               <DmIcon/>
                             </button>
                         </div>

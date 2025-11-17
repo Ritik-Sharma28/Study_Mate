@@ -129,3 +129,11 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: 'Server error during login' });
   }
 };
+
+export const logoutUser = (req, res) => {
+  res.cookie('jwt', '', {
+    httpOnly: true,
+    expires: new Date(0), // Set to a date in the past
+  });
+  res.status(200).json({ message: 'Logged out successfully' });
+};

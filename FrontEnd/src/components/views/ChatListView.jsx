@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAvatarUrl } from '../../constants.js';
 import { apiGetMyChats } from '../../services/apiService.js';
-import { SearchIcon } from '../Icons.jsx';
+import { SearchIcon, UsersIcon } from '../Icons.jsx';
 
 // Helper to format "2:30 PM" or "Nov 15"
 const formatLastMessageTime = (date) => {
@@ -34,12 +34,16 @@ const ChatListView = ({ onStartChat, onGoBack }) => {
       .catch(err => console.error("Failed to fetch chat list", err))
       .finally(() => setIsLoading(false));
   }, []);
-
-  // 2. Filter logic for search bar
-  const filteredChats = chats.filter(chat =>
-    chat.displayUser.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+// --- THIS IS THE FIX ---
+  // 2. Update filter logic to check both DM and Group names
+  const filteredChats = chats.filter(chat => {
+    const name = chat.roomType === 'dm' 
+      ? chat.displayUser?.name 
+      : chat.displayGroup?.name;
+    
+    return name ? name.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+  });
+  // --- END FIX ---
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-100 dark:bg-gray-800">
       {/* Header */}
@@ -66,7 +70,8 @@ const ChatListView = ({ onStartChat, onGoBack }) => {
         </div>
       </div>
 
-      {/* 3. Real Chat List */}
+     {/* --- THIS IS THE FIX --- */}
+      {/* 3. Update Chat List to render DMs and Groups */}
       <main className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
@@ -79,27 +84,65 @@ const ChatListView = ({ onStartChat, onGoBack }) => {
                 No chats found. Start a new conversation!
               </p>
             )}
-            {filteredChats.map(chat => (
-              <div 
-                key={chat.roomId} 
-                onClick={() => onStartChat(chat.displayUser)} // Pass the user object to DmScreen
-                className="flex items-center p-3 mx-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-              >
-                <img src={getAvatarUrl(chat.displayUser.avatarId)} alt={chat.displayUser.name} className="w-12 h-12 rounded-full object-cover" />
-                <div className="ml-4 flex-1 overflow-hidden">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100">{chat.displayUser.name}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                    {chat.lastMessage.sender.name}: {chat.lastMessage.content}
-                  </p>
-                </div>
-                <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
-                  {formatLastMessageTime(chat.lastMessage.createdAt)}
-                </span>
-              </div>
-            ))}
+
+            {/* Map over filtered chats and render based on roomType */}
+            {filteredChats.map(chat => {
+              
+              // --- RENDER A DM CHAT ---
+              if (chat.roomType === 'dm') {
+                return (
+                  <div 
+                    key={chat.roomId} 
+                    onClick={() => onStartChat(chat.displayUser)} // Pass the user object
+                    className="flex items-center p-3 mx-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  >
+                    <img src={getAvatarUrl(chat.displayUser.avatarId)} alt={chat.displayUser.name} className="w-12 h-12 rounded-full object-cover" />
+                    <div className="ml-4 flex-1 overflow-hidden">
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{chat.displayUser.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                        {chat.lastMessage.sender.name}: {chat.lastMessage.content}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
+                      {formatLastMessageTime(chat.lastMessage.createdAt)}
+                    </span>
+                  </div>
+                );
+              }
+
+              // --- RENDER A GROUP CHAT ---
+              if (chat.roomType === 'group') {
+                return (
+                  <div 
+                    key={chat.roomId} 
+                    // Pass the group object. You will need to create a <GroupScreen> 
+                    // component and handle this in your MainAppScreen.jsx
+                    onClick={() => onStartChat(chat.displayGroup)} 
+                    className="flex items-center p-3 mx-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  >
+                    {/* Use a group icon instead of a user avatar */}
+                    <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                      <UsersIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                    </div>
+                    <div className="ml-4 flex-1 overflow-hidden">
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{chat.displayGroup.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                        {chat.lastMessage.sender.name}: {chat.lastMessage.content}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
+                      {formatLastMessageTime(chat.lastMessage.createdAt)}
+                    </span>
+                  </div>
+                );
+              }
+              
+              return null; // Fallback
+            })}
           </div>
         )}
       </main>
+      {/* --- END FIX --- */}
     </div>
   );
 };

@@ -24,10 +24,35 @@ export const apiRegister = async (formData) => {
   return data;
 };
 
-// GET /api/posts
-export const apiGetPosts = async () => {
-  const { data } = await apiClient.get('/posts');
-  return data;
+// 1. Replaces apiGetPosts
+export const apiGetRecommendedPosts = async (userId) => {
+  // GET /api/v1/posts/recommend-posts?user_id=...
+  const { data } = await apiClient.get(`/v1/posts/recommend-posts`, {
+    params: { user_id: userId }
+  });
+  return data.recommended; // The Python API returns an object { "recommended": [...] }
+};
+
+// 2. New Find Partner function
+export const apiFindPartners = async (userId, filters) => {
+  // filters = { skills: [], studyTime: [], teamPref: 'Team' }
+  const params = new URLSearchParams();
+  params.append('user_id', userId);
+  
+  // Add filters if they exist
+  if (filters.skills && filters.skills.length > 0) {
+    filters.skills.forEach(skill => params.append('domain', skill)); // 'skills' in frontend is 'domain' in API
+  }
+  if (filters.studyTime && filters.studyTime.length > 0) {
+    filters.studyTime.forEach(time => params.append('study_time', time.toLowerCase()));
+  }
+  if (filters.teamPref) {
+    params.append('team_pref', filters.teamPref.toLowerCase());
+  }
+
+  // GET /api/v1/partners/find-partner?user_id=...&domain=react&team_pref=team
+  const { data } = await apiClient.get(`/v1/partners/find-partner`, { params });
+  return data.matches; // The Python API returns an object { "matches": [...] }
 };
 
 // POST /api/posts
@@ -78,17 +103,6 @@ export const apiDeletePost = async (postId) => {
   return data;
 };
 
-// --- ERROR HANDLING (Optional but good) ---
-// We can add a "response interceptor" to handle errors globally
-apiClient.interceptors.response.use(
-  (response) => response, // If response is good, just return it
-  (error) => {
-    // If response is bad, log it and re-throw a clearer error
-    const message = error.response?.data?.message || error.message;
-    console.error("API Error:", message);
-    return Promise.reject(new Error(message));
-  }
-);
 
 // --- NEW USER FUNCTIONS ---
 export const apiGetUserById = async (userId) => {
@@ -116,3 +130,59 @@ export const apiGetMyChats = async () => {
   const { data } = await apiClient.get('/messages/my-chats');
   return data;
 };
+
+
+// ... (all existing API functions)
+
+// --- NEW GROUP FUNCTIONS ---
+
+export const apiGetAllGroups = async () => {
+  const { data } = await apiClient.get('/groups');
+  return data;
+};
+
+export const apiGetMyGroups = async () => {
+  const { data } = await apiClient.get('/groups/my-groups');
+  return data;
+};
+
+export const apiJoinGroup = async (groupId) => {
+  const { data } = await apiClient.post(`/groups/${groupId}/join`);
+  return data;
+};
+
+export const apiLeaveGroup = async (groupId) => {
+  const { data } = await apiClient.delete(`/groups/${groupId}/leave`);
+  return data;
+};
+
+export const apiGetGroupMembers = async (groupId) => {
+  const { data } = await apiClient.get(`/groups/${groupId}/members`);
+  return data;
+};
+
+// This calls the POST /api/groups/seed route
+export const apiSeedGroups = async () => {
+  const { data } = await apiClient.post('/groups/seed');
+  return data;
+};
+// --- END ADD ---
+
+export const apiLogout = async () => {
+  const { data } = await apiClient.post('/auth/logout');
+  return data;
+};
+
+// ... (error interceptor)
+
+// --- ERROR HANDLING (Optional but good) ---
+// We can add a "response interceptor" to handle errors globally
+apiClient.interceptors.response.use(
+  (response) => response, // If response is good, just return it
+  (error) => {
+    // If response is bad, log it and re-throw a clearer error
+    const message = error.response?.data?.message || error.message;
+    console.error("API Error:", message);
+    return Promise.reject(new Error(message));
+  }
+);
