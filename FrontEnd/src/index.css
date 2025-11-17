@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FIX: Make html, body, and root div full-height.
+  This is essential for h-full to work correctly in React.
+*/
+html, body, #root {
+  @apply h-full;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  
+  /* FIX: Move the background colors here from App.jsx.
+    This fixes the "white bar" in dark mode by ensuring
+    the entire page background is correct.
+  */
+  @apply bg-gray-200 dark:bg-black;
+}
+
+/* --- ADD THIS (from last time) --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
