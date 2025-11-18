@@ -74,16 +74,14 @@ export const registerUser = async (req, res) => {
 
     if (user) {
       const token = generateToken(user._id);
-      setTokenCookie(res, token); // <-- 1. SET COOKIE
-
-      // 2. DON'T SEND TOKEN IN RESPONSE
+      setTokenCookie(res, token); 
      res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
         username: user.username,
         avatarId: user.avatarId,
-        // --- ADD THESE LINES ---
+        
         domains: user.domains,
         learningStyle: user.learningStyle,
         studyTime: user.studyTime,
@@ -107,7 +105,7 @@ export const loginUser = async (req, res) => {
 
     if (user && (await user.matchPassword(password))) {
       const token = generateToken(user._id);
-      setTokenCookie(res, token); // <-- 1. SET COOKIE
+      setTokenCookie(res, token); // 
 
       // 2. DON'T SEND TOKEN IN RESPONSE
       res.json({

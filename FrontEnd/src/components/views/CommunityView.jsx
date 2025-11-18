@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getAvatarUrl } from '../../constants.js'; // 1. REMOVED DEFAULT_USER import
+import { getAvatarUrl } from '../../constants.js';
 import { SearchIcon, MembersIcon, ChatBubbleIcon, EllipsisIcon, LeaveIcon, JoinIcon } from '../Icons.jsx';
 import { 
   joinRoom, 
@@ -69,8 +69,6 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
   
   const messagesEndRef = useRef(null);
   
-  // 2. The 'currentUser' HACK is GONE. We now use the 'user' prop.
-
   // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -107,7 +105,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
           .finally(() => setIsLoadingChat(false));
         
         joinRoom(group._id);
-        onMessageReceived(handleReceiveMessage); // Pass the specific function
+        onMessageReceived(handleReceiveMessage); 
 
         return () => {
           leaveRoom(group._id);
@@ -136,9 +134,8 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
   // Handle sending a message
   const handleSend = (e) => {
     e.preventDefault();
-    if (newMessage.trim() === '' || !user) return; // 3. Check against the real 'user' prop
+    if (newMessage.trim() === '' || !user) return;
 
-    // 4. Use the real 'user' prop for optimistic update
     const ownMessageData = {
       _id: new Date().getTime(),
       text: newMessage,
@@ -152,6 +149,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
     };
     
     setMessages(prev => [...prev, ownMessageData]);
+    // Pass 'true' for isGroup
     sendMessage(group._id, newMessage, true); 
     setNewMessage('');
   };
@@ -230,8 +228,8 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
                     <ChatBubble 
                       key={msg._id} 
                       message={msg} 
-                      // 5. Use the real 'user' prop to check sender
-                      isSender={msg.sender._id === user._id} 
+                      // --- FIX: Safe navigation (?. and &&) to prevent crashes from deleted users ---
+                      isSender={user && msg.sender && msg.sender._id === user._id} 
                     />
                   ))}
                   <div ref={messagesEndRef} />
@@ -291,8 +289,8 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
 };
 
 // --- MAIN COMMUNITY VIEW COMPONENT ---
-// Receives 'user' prop from MainAppScreen
-const CommunityView = ({ onViewProfile, user }) => {
+// NEW: Accept initialGroupId and onGroupOpened from MainAppScreen
+const CommunityView = ({ onViewProfile, user, initialGroupId, onGroupOpened }) => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -324,7 +322,19 @@ const CommunityView = ({ onViewProfile, user }) => {
 
   useEffect(() => {
     loadData();
-  }, []); // Call loadData on mount
+  }, []);
+
+  // --- NEW: Auto-Open Group Logic ---
+  useEffect(() => {
+    if (initialGroupId && allGroups.length > 0) {
+      const groupToOpen = allGroups.find(g => g._id === initialGroupId);
+      if (groupToOpen) {
+        setSelectedGroup(groupToOpen);
+        // Notify parent that we consumed the ID
+        if (onGroupOpened) onGroupOpened();
+      }
+    }
+  }, [initialGroupId, allGroups, onGroupOpened]);
 
   const handleJoin = async () => {
     try {

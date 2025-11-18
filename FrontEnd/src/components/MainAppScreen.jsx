@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   apiGetRecommendedPosts,
   apiCreatePost,
@@ -23,6 +23,9 @@ const TAGS_MAX_LENGTH = 100;
 const MainAppScreen = ({ user, onStartChat, onLogout, theme, toggleTheme, onProfileUpdate, onShowChats, onViewProfile }) => {
   const [activeTab, setActiveTab] = useState('posts');
   
+  // --- NEW: State to handle auto-opening a group from Chat List ---
+  const [autoOpenGroupId, setAutoOpenGroupId] = useState(null);
+
   // State for Modals
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -49,7 +52,7 @@ const MainAppScreen = ({ user, onStartChat, onLogout, theme, toggleTheme, onProf
 
   // Fetch Recommended Posts
   useEffect(() => {
-    if (user && user._id) { 
+    if (user && user._id) {
       setIsLoadingPosts(true);
       apiGetRecommendedPosts(user._id)
         .then(fetchedPosts => {
@@ -71,6 +74,22 @@ const MainAppScreen = ({ user, onStartChat, onLogout, theme, toggleTheme, onProf
   const confirmLogout = () => {
     closeLogoutModal();
     onLogout();
+  };
+
+  // --- NEW: Internal Handler for "Start Chat" ---
+  // This handles both DMs (passed to parent) and Groups (handled internally)
+  const handleStartChatInternal = (target, type = 'dm') => {
+    if (type === 'group') {
+      // 1. Switch to Community Tab
+      setActiveTab('community');
+      // 2. Set the ID so CommunityView opens it immediately
+      setAutoOpenGroupId(target._id);
+      // 3. Close the Chat List Overlay (if open in App.jsx)
+      if (onShowChats) onShowChats(); // Toggles it off
+    } else {
+      // For DMs, bubble up to App.jsx to open DmScreen
+      if (onStartChat) onStartChat(target);
+    }
   };
 
   // --- Post Modal Handlers (Create & Edit) ---
@@ -126,8 +145,10 @@ const MainAppScreen = ({ user, onStartChat, onLogout, theme, toggleTheme, onProf
         setPosts([postWithAuthor, ...posts]);
       }
       handleClosePostModal();
+      setToastMessage(postToEdit ? 'Post updated successfully!' : 'Post created successfully!');
     } catch (error) {
       console.error("Failed to submit post:", error);
+      setToastMessage('Failed to save post.');
     }
   };
 
@@ -183,7 +204,7 @@ const MainAppScreen = ({ user, onStartChat, onLogout, theme, toggleTheme, onProf
                 />;
       case 'findPartner': 
         return <FindPartnerView 
-                  onStartChat={onStartChat} 
+                  onStartChat={(u) => handleStartChatInternal(u, 'dm')} 
                   onViewProfile={onViewProfile}
                   user={user}
                 />;
@@ -195,11 +216,19 @@ const MainAppScreen = ({ user, onStartChat, onLogout, theme, toggleTheme, onProf
                   onOpenPostModal={handleOpenPostModal}
                 />;
       case 'community': 
+        return <CommunityView 
+                  onStartChat={(u) => handleStartChatInternal(u, 'dm')} 
+                  onViewProfile={onViewProfile}
+                  user={user}
+                  // --- NEW PROPS for navigation ---
+                  initialGroupId={autoOpenGroupId}
+                  onGroupOpened={() => setAutoOpenGroupId(null)}
+                />;
       default: 
         return <CommunityView 
-                  onStartChat={onStartChat} 
+                  onStartChat={(u) => handleStartChatInternal(u, 'dm')} 
                   onViewProfile={onViewProfile}
-                  user={user} // <-- This prop is confirmed to be passed
+                  user={user}
                 />;
     }
   };
@@ -211,6 +240,8 @@ const MainAppScreen = ({ user, onStartChat, onLogout, theme, toggleTheme, onProf
         theme={theme} 
         toggleTheme={toggleTheme} 
         onShowChats={onShowChats}
+        onViewProfile={onViewProfile}
+        showSearch={activeTab === 'posts'}
       />
       
       <main className="flex-1 overflow-y-auto">

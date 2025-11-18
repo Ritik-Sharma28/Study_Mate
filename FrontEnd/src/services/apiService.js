@@ -7,9 +7,11 @@ const apiClient = axios.create({
   withCredentials: true, // This tells axios to send cookies with requests
 });
 
-// --- 2. UPDATE YOUR FUNCTIONS TO USE THE NEW INSTANCE ---
-// Notice the URLs no longer start with '/api'
-// The baseURL is added automatically
+
+export const apiSearchUsers = async (query) => {
+  const { data } = await apiClient.get(`/users/search`, { params: { query } });
+  return data;
+};
 
 // --- Auth Functions ---
 export const apiLogin = async (email, password) => {

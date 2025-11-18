@@ -3,10 +3,13 @@ import {
   getUserProfile,
   updateUserProfile,
   getUserById,
+  searchUsers,
 } from '../controllers/user.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
+
+router.route('/search').get(protect, searchUsers);
 
 // Both routes are protected and use the logged-in user's token
 router

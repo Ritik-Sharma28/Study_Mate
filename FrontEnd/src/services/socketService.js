@@ -2,8 +2,7 @@ import { io } from 'socket.io-client';
 
 let socket;
 
-// We connect to the backend URL
-// (This works because of your vite.config.js proxy)
+// Determine URL based on environment
 const URL = import.meta.env.VITE_API_BASE_URL === '/api' 
   ? undefined 
   : import.meta.env.VITE_API_BASE_URL;
@@ -11,7 +10,7 @@ const URL = import.meta.env.VITE_API_BASE_URL === '/api'
 export const connectSocket = () => {
   if (!socket) {
     socket = io(URL, {
-      withCredentials: true, // This is essential for sending cookies
+      withCredentials: true, 
     });
 
     socket.on('connect', () => {
@@ -35,7 +34,7 @@ export const disconnectSocket = () => {
   }
 };
 
-// --- Emitters (Sending data to server) ---
+// --- Emitters ---
 
 export const joinRoom = (roomId) => {
   if (socket) socket.emit('joinRoom', roomId);
@@ -45,28 +44,23 @@ export const leaveRoom = (roomId) => {
   if (socket) socket.emit('leaveRoom', roomId);
 };
 
-// --- THIS IS THE FIX ---
-// 1. Accept 'isGroup' (which you were already passing from DmScreen)
-export const sendMessage = (roomId, message, isGroup) => {
+// --- FIX IS HERE: Pass 'isGroup' to the server ---
+export const sendMessage = (roomId, message, isGroup = false) => {
   if (socket) {
-    // 2. Pass 'isGroup' to the server in the data object
+    // The backend expects: { roomId, message, isGroup }
     socket.emit('sendMessage', { roomId, message, isGroup });
   }
 };
-// --- END FIX ---
 
 export const onMessageReceived = (callback) => {
   if (socket) {
-    // 1. Remove any old listeners to prevent duplicates
     socket.removeAllListeners('receiveMessage'); 
-    // 2. Add the new, fresh listener
     socket.on('receiveMessage', callback);
   }
 };
 
 export const offMessageReceived = () => {
   if (socket) {
-    // 3. Remove all listeners for this event when a chat closes
     socket.removeAllListeners('receiveMessage');
   }
 };

@@ -6,15 +6,28 @@ export const TEAM_PREFERENCES = ["Team", "Solo"];
 
 // --- ADDED ---
 export const AVATAR_OPTIONS = [
-    { id: '1027', url: 'https://picsum.photos/id/1027/200/200' },
+    { id: '7', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chico_pelo_oscuro.png/640px-Chico_pelo_oscuro.png' },
     { id: '1005', url: 'https://picsum.photos/id/1005/200/200' },
     { id: '1011', url: 'https://picsum.photos/id/1011/200/200' },
     { id: '1012', url: 'https://picsum.photos/id/1012/200/200' },
     { id: '1025', url: 'https://picsum.photos/id/1025/200/200' },
     { id: '237', url: 'https://picsum.photos/id/237/200/200' },
     { id: '3', url: 'https://picsum.photos/id/3/200/200' },
-    { id: '8', url: 'https://picsum.photos/id/8/200/200' },
+        { id: '1027', url: 'https://picsum.photos/id/1027/200/200' },
+    
 ];
+
+// // --- ADDED ---
+// export const AVATAR_OPTIONS = [
+//     { id: '1027', url: 'https://www.behance.net/gallery/10774061/Pokmon-Avatars' },
+//     { id: '1005', url: 'https://tse2.mm.bing.net/th/id/OIP.hkUm7UcOZPQLtncJ4BKkegHaHa?rs=1&pid=ImgDetMain&o=7&rm=3' },
+//     { id: '1011', url: 'https://img.freepik.com/premium-vector/heartwarming-smile-masks-person-who-is-quick-throw-others-bus-order-save_216520-177387.jpg?semt=ais_hybrid' },
+//     { id: '1012', url: 'https://tse2.mm.bing.net/th/id/OIP.GEIwFHUXHAqxCqy84w4qZAAAAA?w=360&h=360&rs=1&pid=ImgDetMain&o=7&rm=3' },
+//     { id: '1025', url: 'https://png.pngtree.com/png-clipart/20220131/original/pngtree-cartoon-girl-happy-expression-lovely-cartoon-hand-painted-character-avatar-png-image_7248564.png' },
+//     { id: '237', url: 'https://tse2.mm.bing.net/th/id/OIP.MDy5bSxUUopNai6fOaszzAHaIj?rs=1&pid=ImgDetMain&o=7&rm=3' },
+//     { id: '3', url: 'https://tse1.mm.bing.net/th/id/OIP.Uh5vfipp67lALX_Q3EUaVQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3' },
+//     { id: '8', url: 'https://tse3.mm.bing.net/th/id/OIP.Ku4KtzBZZBxVR-9ZyiZ_uAHaIx?rs=1&pid=ImgDetMain&o=7&rm=3' },
+// ];
 
 const avatarMap = new Map(AVATAR_OPTIONS.map(a => [a.id, a.url]));
 // Add a default for safety
