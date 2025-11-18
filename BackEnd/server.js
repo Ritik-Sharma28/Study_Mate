@@ -8,6 +8,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { initializeSocket } from './socketHandler.js';
 import connectDB from './config/db.js';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 // --- 1. IMPORT ALL YOUR ROUTE FILES ---
 import authRoutes from './routes/auth.routes.js';
@@ -51,6 +52,16 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+if (process.env.PYTHON_SERVICE_URL) {
+    app.use('/api/v1', createProxyMiddleware({
+        target: process.env.PYTHON_SERVICE_URL, // We will set this Env Var in Render
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/v1': '/api/v1', // Keep the path same
+        },
+    }));
+}
 
 // --- Static Folder ---
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
