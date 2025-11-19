@@ -3,9 +3,9 @@ import { io } from 'socket.io-client';
 let socket;
 
 // Determine URL based on environment
-const URL = import.meta.env.VITE_API_BASE_URL === '/api' 
-  ? undefined 
-  : import.meta.env.VITE_API_BASE_URL;
+const SOCKET_URL = VITE_BASE_URL && VITE_BASE_URL.endsWith('/api') 
+  ? VITE_BASE_URL.substring(0, VITE_BASE_URL.length - 4) 
+  : VITE_BASE_URL;
 
 export const connectSocket = () => {
   if (!socket) {
