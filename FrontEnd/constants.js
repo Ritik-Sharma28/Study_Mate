@@ -27,7 +27,7 @@ export const getAvatarUrl = (id) => {
 
 
 export const SUGGESTED_USERS = [
-    { name: 'Alice', group: 'Web Devs', avatarId: '1027', skills: ['React', 'JavaScript', 'UI/UX Design'] },
+    { name: 'Alice', group: 'Web Devs', avatarId: '107', skills: ['React', 'JavaScript', 'UI/UX Design'] },
     { name: 'Bob', group: 'ML Enthusiasts', avatarId: '1005', skills: ['Python', 'ML'] },
     { name: 'Charlie', group: 'Competitive Programmers', avatarId: '1011', skills: ['DSA', 'Python'] },
     { name: 'Diana', group: 'Cybersecurity', avatarId: '1012', skills: ['Cybersecurity', 'Node.js'] },
@@ -54,7 +54,7 @@ export const DEFAULT_USER = {
 // };
 
 export const POSTS = [
-    { id: 1, author: 'Alice', authorAvatarId: '1027', title: 'React Hooks Best Practices', summary: 'A deep dive into using React Hooks effectively...', content: '## Understanding useState and useEffect...', tags: ['Web Dev', 'React'] },
+    { id: 1, author: 'Alice', authorAvatarId: '107', title: 'React Hooks Best Practices', summary: 'A deep dive into using React Hooks effectively...', content: '## Understanding useState and useEffect...', tags: ['Web Dev', 'React'] },
     { id: 2, author: 'Bob', authorAvatarId: '1005', title: 'Introduction to K-Means Clustering', summary: 'Learn the fundamentals of K-Means...', content: '### How K-Means Works...', tags: ['ML', 'Python'] },
     { id: 3, author: 'Charlie', authorAvatarId: '1011', title: 'My Competitive Programming Journey', summary: 'Tips and tricks for anyone starting...', content: 'Consistency is key...', tags: ['DSA', 'Algorithms'] }
 ];
