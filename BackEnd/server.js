@@ -8,7 +8,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { initializeSocket } from './socketHandler.js';
 import connectDB from './config/db.js';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+// NOTE: http-proxy-middleware is no longer needed/imported
 
 // --- 1. IMPORT ALL YOUR ROUTE FILES ---
 import authRoutes from './routes/auth.routes.js';
@@ -16,10 +16,16 @@ import postRoutes from './routes/post.routes.js';
 import userRoutes from './routes/user.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import groupRoutes from './routes/group.routes.js';
+import matchRoutes from './routes/match.routes.js'; // NEW: Match routes
 import { checkAndSeedGroups } from './seeder.js';
 
 // --- Initial Setup ---
 dotenv.config();
+
+// Define environment variables for production (Uses the previous CORS fix)
+// This will be 'http://localhost:5173' when running locally with 'npm run dev'
+const FRONTEND_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173';
+
 // 3. Connect to DB *then* start seeding
 connectDB().then(() => {
   // 4. Run the seeder function *after* connecting to DB
@@ -31,7 +37,7 @@ const server = http.createServer(app);
 // --- Configure Socket.io ---
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173', // Your frontend URL
+    origin: FRONTEND_ORIGIN,
     credentials: true,
   },
 });
@@ -45,23 +51,13 @@ const __dirname = path.dirname(__filename);
 // --- Middlewares ---
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: FRONTEND_ORIGIN,
     credentials: true,
   })
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-if (process.env.PYTHON_SERVICE_URL) {
-    app.use('/api/v1', createProxyMiddleware({
-        target: process.env.PYTHON_SERVICE_URL, // We will set this Env Var in Render
-        changeOrigin: true,
-        pathRewrite: {
-            '^/api/v1': '/api/v1', // Keep the path same
-        },
-    }));
-}
 
 // --- Static Folder ---
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
@@ -71,11 +67,15 @@ app.get('/api', (req, res) => {
   res.send('API is running successfully.');
 });
 
+// NEW: Use the match routes under the old /api/v1 prefix
+// This replaces the proxy and serves the logic directly from Node.js
+app.use('/api/v1', matchRoutes); 
+
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/groups', groupRoutes); // <-- This is the line that fixes the 404
+app.use('/api/groups', groupRoutes); 
 
 // --- Start Server ---
 const PORT = process.env.PORT || 5000;
