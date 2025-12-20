@@ -28,8 +28,8 @@ const registerSchema = z.object({
 const setTokenCookie = (res, token) => {
   res.cookie('jwt', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development',
-    sameSite: process.env.NODE_ENV === 'development' ? 'strict' : 'none',
+   secure: true,      
+    sameSite: 'none',
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 };
@@ -100,7 +100,7 @@ export const loginUser = async (req, res) => {
 
     if (user && (await user.matchPassword(password))) {
       const token = generateToken(user._id);
-      setTokenCookie(res, token);
+      setTokenCookie(res,token);
 
       res.json({
         _id: user._id,

@@ -29,6 +29,8 @@ connectDB().then(() => {
 const app = express();
 const server = http.createServer(app);
 
+app.set('trust proxy', 1);
+
 const io = new Server(server, {
   cors: {
     origin: FRONTEND_ORIGIN,

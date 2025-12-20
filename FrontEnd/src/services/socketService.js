@@ -3,14 +3,14 @@ import { io } from 'socket.io-client';
 let socket;
 
 
-const URL = import.meta.env.VITE_API_BASE_URL === '/api' 
-  ? undefined 
-  : import.meta.env.VITE_API_BASE_URL;
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+const URL = baseUrl ? baseUrl.replace('/api', '') : undefined;
 
 export const connectSocket = () => {
   if (!socket) {
     socket = io(URL, {
-      withCredentials: true, 
+      withCredentials: true,
+      transports: ['websocket']
     });
 
     socket.on('connect', () => {
@@ -47,14 +47,14 @@ export const leaveRoom = (roomId) => {
 
 export const sendMessage = (roomId, message, isGroup = false) => {
   if (socket) {
-    
+
     socket.emit('sendMessage', { roomId, message, isGroup });
   }
 };
 
 export const onMessageReceived = (callback) => {
   if (socket) {
-    socket.removeAllListeners('receiveMessage'); 
+    socket.removeAllListeners('receiveMessage');
     socket.on('receiveMessage', callback);
   }
 };
