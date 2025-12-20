@@ -20,7 +20,7 @@ import { checkAndSeedGroups } from './seeder.js';
 
 dotenv.config();
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_ORIGIN = process.env.FRONTEND_URL || 'https://studymate-frontend-kq19.onrender.com';
 
 connectDB().then(() => {
   checkAndSeedGroups();
