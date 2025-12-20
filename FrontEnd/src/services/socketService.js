@@ -3,8 +3,9 @@ import { io } from 'socket.io-client';
 let socket;
 
 
-const URL = import.meta.env.VITE_API_BASE_URL;
-// const URL = baseUrl ? baseUrl.replace('/api', '') : undefined;
+const URL = import.meta.env.VITE_API_BASE_URL === '/api' 
+  ? undefined 
+  : import.meta.env.VITE_API_BASE_URL;
 
 export const connectSocket = () => {
   if (!socket) {
