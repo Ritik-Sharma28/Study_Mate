@@ -3,7 +3,7 @@ import { getAvatarUrl } from '../../constants.js';
 import { apiGetMyChats } from '../../services/apiService.js';
 import { SearchIcon } from '../Icons.jsx';
 
-// Helper to format "2:30 PM" or "Nov 15"
+
 const formatLastMessageTime = (date) => {
   if (!date) return '';
   const now = new Date();
@@ -35,19 +35,19 @@ const ChatListView = ({ onStartChat, onGoBack }) => {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // --- UPDATED FILTER: Only show DMs ---
+  
   const filteredChats = chats.filter(chat => {
-    // 1. STRICTLY check for 'dm' type
+    
     if (chat.roomType !== 'dm') return false;
 
-    // 2. Search by User Name
+    
     const name = chat.displayUser?.name;
     return name ? name.toLowerCase().includes(searchTerm.toLowerCase()) : false;
   });
 
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-100 dark:bg-gray-800">
-      {/* Header */}
+      {}
       <header className="flex items-center p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <button onClick={onGoBack} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -55,7 +55,7 @@ const ChatListView = ({ onStartChat, onGoBack }) => {
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white ml-3">All Chats</h2>
       </header>
       
-      {/* Search Bar */}
+      {}
       <div className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -71,7 +71,7 @@ const ChatListView = ({ onStartChat, onGoBack }) => {
         </div>
       </div>
 
-      {/* List */}
+      {}
       <main className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
@@ -85,7 +85,7 @@ const ChatListView = ({ onStartChat, onGoBack }) => {
               </p>
             )}
             {filteredChats.map(chat => {
-              // We assume only 'dm' types pass the filter now
+              
               return (
                 <div 
                   key={chat.roomId} 

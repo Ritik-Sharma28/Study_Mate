@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 
 let socket;
 
-// Determine URL based on environment
+
 const URL = import.meta.env.VITE_API_BASE_URL === '/api' 
   ? undefined 
   : import.meta.env.VITE_API_BASE_URL;
@@ -34,7 +34,7 @@ export const disconnectSocket = () => {
   }
 };
 
-// --- Emitters ---
+
 
 export const joinRoom = (roomId) => {
   if (socket) socket.emit('joinRoom', roomId);
@@ -44,10 +44,10 @@ export const leaveRoom = (roomId) => {
   if (socket) socket.emit('leaveRoom', roomId);
 };
 
-// --- FIX IS HERE: Pass 'isGroup' to the server ---
+
 export const sendMessage = (roomId, message, isGroup = false) => {
   if (socket) {
-    // The backend expects: { roomId, message, isGroup }
+    
     socket.emit('sendMessage', { roomId, message, isGroup });
   }
 };

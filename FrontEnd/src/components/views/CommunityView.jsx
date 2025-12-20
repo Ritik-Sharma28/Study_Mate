@@ -18,10 +18,10 @@ import {
 } from '../../services/apiService.js';
 import ChatBubble from '../ChatBubble.jsx';
 
-// --- SUB-COMPONENT: Group List Page ---
+
 const GroupListView = ({ groups, onSelectGroup, onSearchChange }) => (
   <div className="space-y-4">
-    {/* Search Bar */}
+    {}
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <SearchIcon />
@@ -34,7 +34,7 @@ const GroupListView = ({ groups, onSelectGroup, onSearchChange }) => (
       />
     </div>
 
-    {/* Groups Grid */}
+    {}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {groups.map(group => (
         <button
@@ -54,13 +54,13 @@ const GroupListView = ({ groups, onSelectGroup, onSearchChange }) => (
   </div>
 );
 
-// --- SUB-COMPONENT: Group Detail Page ---
+
 const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onLeave, user }) => {
   const [activeTab, setActiveTab] = useState('chat');
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // Chat State
+  
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoadingChat, setIsLoadingChat] = useState(true);
@@ -69,7 +69,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
   
   const messagesEndRef = useRef(null);
   
-  // Close menu on outside click
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -80,16 +80,16 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
-  // Default to 'chat' tab when joining
+  
   useEffect(() => {
     if(isJoined) {
       setActiveTab('chat');
     }
   }, [isJoined]);
 
-  // Join/Leave Socket Room, Listen for messages, and Fetch History
+  
   useEffect(() => {
-    // Define the listener
+    
     const handleReceiveMessage = (messageData) => {
       if (messageData.group === group._id) {
         setMessages(prev => [...prev, messageData]);
@@ -126,12 +126,12 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
     }
   }, [isJoined, activeTab, group._id]);
 
-  // Auto-scroll on new message
+  
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Handle sending a message
+  
   const handleSend = (e) => {
     e.preventDefault();
     if (newMessage.trim() === '' || !user) return;
@@ -149,14 +149,14 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
     };
     
     setMessages(prev => [...prev, ownMessageData]);
-    // Pass 'true' for isGroup
+    
     sendMessage(group._id, newMessage, true); 
     setNewMessage('');
   };
 
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-100 dark:bg-gray-800">
-      {/* Header */}
+      {}
       <header className="flex items-center p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <button onClick={onGoBack} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -164,7 +164,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
         <img src={group.bannerImage} alt={group.name} className="w-10 h-10 rounded-lg object-cover ml-3" />
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white ml-3">{group.name}</h2>
         
-        {/* Join/Leave Buttons */}
+        {}
         <div className="ml-auto relative" ref={menuRef}>
           {isJoined ? (
             <button
@@ -195,10 +195,10 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
         </div>
       </header>
 
-      {/* Conditional Tabs/Content */}
+      {}
       {isJoined ? (
         <>
-          {/* Tabs (Chat/Members) */}
+          {}
           <div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <button
               onClick={() => setActiveTab('chat')}
@@ -216,7 +216,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
             </button>
           </div>
 
-          {/* Content (Chat/Members) */}
+          {}
           <main className="flex-1 overflow-y-auto p-4 space-y-4">
             {activeTab === 'chat' && (
               isLoadingChat ? (
@@ -228,7 +228,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
                     <ChatBubble 
                       key={msg._id} 
                       message={msg} 
-                      // --- FIX: Safe navigation (?. and &&) to prevent crashes from deleted users ---
+                      
                       isSender={user && msg.sender && msg.sender._id === user._id} 
                     />
                   ))}
@@ -259,7 +259,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
             )}
           </main>
 
-          {/* Chat Input */}
+          {}
           {activeTab === 'chat' && (
             <footer className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
               <form onSubmit={handleSend} className="flex items-center">
@@ -276,7 +276,7 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
           )}
         </>
       ) : (
-        // "NOT JOINED" VIEW
+        
         <main className="flex-1 overflow-y-auto p-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-bold text-gray-800 dark:text-white">About this group</h3>
@@ -288,8 +288,8 @@ const GroupDetailView = ({ group, onGoBack, onViewProfile, isJoined, onJoin, onL
   );
 };
 
-// --- MAIN COMMUNITY VIEW COMPONENT ---
-// NEW: Accept initialGroupId and onGroupOpened from MainAppScreen
+
+
 const CommunityView = ({ onViewProfile, user, initialGroupId, onGroupOpened }) => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -300,7 +300,7 @@ const CommunityView = ({ onViewProfile, user, initialGroupId, onGroupOpened }) =
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null); 
 
-  // Fetch all groups and user's joined groups
+  
   const loadData = async () => {
     try {
       setIsLoading(true);
@@ -324,13 +324,13 @@ const CommunityView = ({ onViewProfile, user, initialGroupId, onGroupOpened }) =
     loadData();
   }, []);
 
-  // --- NEW: Auto-Open Group Logic ---
+  
   useEffect(() => {
     if (initialGroupId && allGroups.length > 0) {
       const groupToOpen = allGroups.find(g => g._id === initialGroupId);
       if (groupToOpen) {
         setSelectedGroup(groupToOpen);
-        // Notify parent that we consumed the ID
+        
         if (onGroupOpened) onGroupOpened();
       }
     }
@@ -379,12 +379,12 @@ const CommunityView = ({ onViewProfile, user, initialGroupId, onGroupOpened }) =
         isJoined={joinedGroupIds.has(selectedGroup._id)}
         onJoin={handleJoin}
         onLeave={handleLeave}
-        user={user} // Pass the real user down
+        user={user} 
       />
     );
   }
 
-  // This is the Group List page
+  
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
       {isLoading ? (

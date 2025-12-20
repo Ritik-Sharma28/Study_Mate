@@ -2,7 +2,7 @@ import express from 'express';
 import {
   getDmMessages,
   getGroupMessages,
-  getChatList, // 1. Import
+  getChatList, 
 } from '../controllers/message.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 

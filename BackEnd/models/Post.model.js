@@ -5,7 +5,7 @@ const postSchema = mongoose.Schema(
     author: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'User', // This creates the connection to your User model
+      ref: 'User', 
     },
     title: {
       type: String,
@@ -24,13 +24,13 @@ const postSchema = mongoose.Schema(
       default: [],
     },
     likes: {
-      // We will store an array of user IDs who liked this post
+      
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
       default: [],
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true, 
   }
 );
 

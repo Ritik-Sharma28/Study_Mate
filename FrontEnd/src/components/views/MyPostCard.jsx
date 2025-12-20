@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { EditIcon, DeleteIcon, EllipsisIcon, LikeIcon } from '../Icons.jsx'; // 1. Import LikeIcon
+import { EditIcon, DeleteIcon, EllipsisIcon, LikeIcon } from '../Icons.jsx'; 
 
 const MyPostCard = ({ post, onEdit, onDelete }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // Hook to close menu on outside click
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -20,7 +20,7 @@ const MyPostCard = ({ post, onEdit, onDelete }) => {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm flex flex-col">
-      {/* --- Card Header (with 3-dot menu) --- */}
+      {}
       <div className="flex justify-between items-center p-4">
         <h3 className="text-lg font-bold text-gray-800 dark:text-white">{post.title}</h3>
         
@@ -51,11 +51,11 @@ const MyPostCard = ({ post, onEdit, onDelete }) => {
         </div>
       </div>
 
-      {/* --- 2. ADDED CARD BODY (This is the fix) --- */}
+      {}
       <main className="px-4 pb-4 space-y-4">
         <p className="text-sm text-gray-600 dark:text-gray-300">{post.summary}</p>
         
-        {/* This block will render your markdown content */}
+        {}
         <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md font-mono text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
           <code>{post.content}</code>
         </div>
@@ -68,12 +68,12 @@ const MyPostCard = ({ post, onEdit, onDelete }) => {
           ))}
         </div>
       </main>
-      {/* --- END ADD --- */}
+      {}
 
-      {/* --- Card Footer --- */}
+      {}
       <footer className="border-t border-gray-200 dark:border-gray-700 px-4 py-3 mt-auto">
         <div className="flex items-center space-x-2">
-          {/* Add a disabled-looking like icon for consistency */}
+          {}
           <LikeIcon active={false} /> 
           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
             {post.likes.length} {post.likes.length === 1 ? 'Like' : 'Likes'}

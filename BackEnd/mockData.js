@@ -1,4 +1,4 @@
-// This is just a copy of your frontend COMMUNITY_GROUPS constant
+
 export const COMMUNITY_GROUPS = [
   {
     name: 'Web Devs',

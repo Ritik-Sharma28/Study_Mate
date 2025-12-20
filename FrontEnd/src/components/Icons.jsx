@@ -1,4 +1,4 @@
-// src/components/Icons.jsx
+
 
 import React from 'react';
 
@@ -60,7 +60,7 @@ export const ChatBubbleIcon = ({ active }) => (
   </svg>
 );
 
-// --- ADD THIS AT THE END ---
+
 export const EllipsisIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
     <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -79,13 +79,13 @@ export const LeaveIcon = () => (
   </svg>
 );
 
-// ... (all your other icons)
 
-// --- ADD THIS AT THE END ---
+
+
 export const UsersIcon = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className={`h-6 w-6 ${className}`} // Added className for flexibility
+    className={`h-6 w-6 ${className}`} 
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"

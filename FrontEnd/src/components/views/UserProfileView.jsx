@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { getAvatarUrl } from '../../constants.js';
-// --- FIX: Import apiGetUserById ---
+
 import { apiGetPostsByUserId, apiGetUserById } from '../../services/apiService.js';
 import { DmIcon } from '../Icons.jsx';
 
-// --- FIX: Accept userId as a prop ---
+
 const UserProfileView = ({ userId, onStartChat, onGoBack }) => {
-  // --- FIX: Add state for the user object ---
+  
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- FIX: New Effect to fetch the user's profile ---
+  
   useEffect(() => {
     if (!userId) return;
 
@@ -21,7 +21,7 @@ const UserProfileView = ({ userId, onStartChat, onGoBack }) => {
         setIsLoading(true);
         setError(null);
         const fetchedUser = await apiGetUserById(userId);
-        setUser(fetchedUser); // <--- THIS FIXES "domain bgera not showing"
+        setUser(fetchedUser); 
       } catch (err) {
         console.error("Failed to fetch user profile:", err);
         setError(err.message);
@@ -30,25 +30,25 @@ const UserProfileView = ({ userId, onStartChat, onGoBack }) => {
     fetchUserProfile();
   }, [userId]);
 
-  // --- FIX: Existing Effect now depends on 'user' ---
+  
   useEffect(() => {
-    // This effect will run *after* the one above finishes
+    
     const fetchUserPosts = async () => {
-      if (!user) return; // Wait until we have a user
+      if (!user) return; 
       try {
         const userPosts = await apiGetPostsByUserId(user._id);
         setPosts(userPosts);
       } catch (err) {
         console.error("Failed to fetch user posts:", err);
-        // Don't overwrite the main profile error
+        
       } finally {
-        setIsLoading(false); // Loading is finished only after posts are fetched
+        setIsLoading(false); 
       }
     };
     fetchUserPosts();
-  }, [user]); // Depends on 'user' object
+  }, [user]); 
 
-  // --- FIX: New Loading/Error state ---
+  
   if (isLoading) {
     return (
       <div className="flex-1 flex flex-col h-full bg-gray-100 dark:bg-gray-800">
@@ -66,12 +66,12 @@ const UserProfileView = ({ userId, onStartChat, onGoBack }) => {
   }
 
   if (error || !user) {
-    // Handle user not found or other errors
+    
     return (
       <div className="flex-1 flex flex-col h-full bg-gray-100 dark:bg-gray-800">
-        <header /* ... */ >
-          <button onClick={onGoBack} /* ... */ >
-            <svg /* ... */ />
+        <header  >
+          <button onClick={onGoBack}  >
+            <svg  />
           </button>
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white ml-3">Error</h2>
         </header>
@@ -81,12 +81,12 @@ const UserProfileView = ({ userId, onStartChat, onGoBack }) => {
       </div>
     );
   }
-  // --- END FIX ---
+  
 
 
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-100 dark:bg-gray-900">
-      {/* Header */}
+      {}
       <header className="flex items-center p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <button onClick={onGoBack} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>

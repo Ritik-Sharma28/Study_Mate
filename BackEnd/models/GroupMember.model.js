@@ -18,7 +18,7 @@ const groupMemberSchema = mongoose.Schema(
   }
 );
 
-// Prevent a user from joining the same group twice
+
 groupMemberSchema.index({ user: 1, group: 1 }, { unique: true });
 
 const GroupMember = mongoose.model('GroupMember', groupMemberSchema);

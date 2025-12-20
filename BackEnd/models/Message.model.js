@@ -7,14 +7,14 @@ const messageSchema = mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    // We can use ONE of these. If 'group' exists, it's a group chat.
-    // If 'dmRoom' exists, it's a DM.
+    
+    
     group: {
-      type: String, // Or ObjectId ref if you make a Group model
+      type: String, 
       index: true,
     },
     dmRoom: {
-      type: String, // The calculated 'userA_userB' ID
+      type: String, 
       index: true,
     },
     content: {

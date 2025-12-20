@@ -17,10 +17,10 @@ const DmScreen = ({ user, onGoBack, currentUser }) => {
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef(null);
 
-  // 1. Calculate Room ID, Join Socket Room, and Fetch History
+  
   useEffect(() => {
     if (!currentUser || !user) return;
-    setIsLoading(true); // Start loading
+    setIsLoading(true); 
 
     const newRoomId = [currentUser._id, user._id].sort().join('__');
     setRoomId(newRoomId);
@@ -38,49 +38,49 @@ const DmScreen = ({ user, onGoBack, currentUser }) => {
     };
   }, [currentUser, user]);
 
-  // --- 2. THIS IS THE FIX ---
+  
  useEffect(() => {
-    // Define the listener
+    
     const handleReceiveMessage = (messageData) => {
       if (messageData.dmRoom === roomId) {
         setMessages(prev => [...prev, messageData]);
       }
     };
     
-    // Pass the function to the listener
+    
     onMessageReceived(handleReceiveMessage);
 
-    // Return a cleanup function
+    
     return () => {
-      offMessageReceived(); // No longer needs to pass the function
+      offMessageReceived(); 
     };
-  }, [roomId]); // Re-subscribe if the roomId changes
-  // --- END FIX ---
+  }, [roomId]); 
+  
 
-  // 3. Auto-scroll to bottom
+  
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 4. Handle sending a message
+  
   const handleSend = (e) => {
     e.preventDefault();
     if (newMessage.trim() === '') return;
 
-    // --- THIS IS THE FIX ---
-    // Create message with 'sender' property to match DB
+    
+    
     const ownMessageData = {
       _id: new Date().getTime(),
-      text: newMessage, // ChatBubble will read this as message.text
+      text: newMessage, 
       createdAt: new Date(),
       dmRoom: roomId,
-      sender: { // Use 'sender' instead of 'user'
+      sender: { 
         _id: currentUser._id,
         name: currentUser.name,
         avatarId: currentUser.avatarId,
       },
     };
-    // --- END FIX ---
+    
     
     setMessages(prev => [...prev, ownMessageData]);
     sendMessage(roomId, newMessage, false); 
@@ -89,7 +89,7 @@ const DmScreen = ({ user, onGoBack, currentUser }) => {
   
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-100 dark:bg-gray-800">
-      {/* Header */}
+      {}
       <header className="flex items-center p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <button onClick={onGoBack} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -98,7 +98,7 @@ const DmScreen = ({ user, onGoBack, currentUser }) => {
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white ml-3">{user.name}</h2>
       </header>
       
-      {/* Chat Messages */}
+      {}
       <main className="flex-1 p-4 overflow-y-auto space-y-4">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
@@ -110,8 +110,8 @@ const DmScreen = ({ user, onGoBack, currentUser }) => {
               <ChatBubble 
                 key={msg._id} 
                 message={msg} 
-                // --- THIS IS THE FIX ---
-                // The DB record has 'sender', not 'user'
+                
+                
                 isSender={msg.sender._id === currentUser._id} 
               />
             ))}
@@ -120,7 +120,7 @@ const DmScreen = ({ user, onGoBack, currentUser }) => {
         )}
       </main>
       
-      {/* Footer / Input */}
+      {}
       <footer className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
         <form onSubmit={handleSend} className="flex items-center">
             <input 

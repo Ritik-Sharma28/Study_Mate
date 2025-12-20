@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getAvatarUrl } from '../../constants.js';
 import { apiGetMyPosts, apiDeletePost } from '../../services/apiService.js';
-import MyPostCard from './MyPostCard.jsx'; // We'll keep using this, but it's redesigned
+import MyPostCard from './MyPostCard.jsx'; 
 import EditProfileModal from '../EditProfileModal.jsx';
 import Modal from '../Modal.jsx';
 
-// 1. Remove 'onGetAdvice' from props
+
 const ProfileView = ({ user, onLogout, onProfileUpdate, onOpenPostModal }) => {
   const [myPosts, setMyPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +28,7 @@ const ProfileView = ({ user, onLogout, onProfileUpdate, onOpenPostModal }) => {
       }
     };
     fetchMyPosts();
-  }, []); // Runs once on load
+  }, []); 
 
   const openDeleteModal = (postId) => {
     setPostToDelete(postId);
@@ -55,12 +55,12 @@ const ProfileView = ({ user, onLogout, onProfileUpdate, onOpenPostModal }) => {
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* --- LEFT COLUMN --- */}
+        {}
         <div className="md:col-span-1 space-y-6">
           
-          {/* Profile Card */}
+          {}
           <div className="flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            {/* ... (img, name, email, edit profile button) ... */}
+            {}
             <img src={getAvatarUrl(user.avatarId)} alt="User Avatar" className="w-32 h-32 rounded-full object-cover shadow-lg" />
             <div className="text-center mt-4">
                 <h2 className="text-3xl font-bold text-gray-800 dark:text-white">{user.name}</h2>
@@ -74,9 +74,9 @@ const ProfileView = ({ user, onLogout, onProfileUpdate, onOpenPostModal }) => {
             </button>
           </div>
           
-          {/* About Card */}
+          {}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 text-left space-y-4">
-            {/* ... (Domains, Learning Style, etc.) ... */}
+            {}
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3">About Me</h3>
               <div className="flex items-start">
                   <span className="font-semibold w-1/3 text-gray-700 dark:text-gray-300">Domains:</span>
@@ -89,17 +89,17 @@ const ProfileView = ({ user, onLogout, onProfileUpdate, onOpenPostModal }) => {
               <p><span className="font-semibold text-gray-700 dark:text-gray-300">Preference:</span> <span className="text-gray-600 dark:text-gray-400">{user.teamPref}</span></p>
           </div>
 
-          {/* 2. REMOVED AI ADVICE BUTTON */}
+          {}
           <button onClick={onLogout} className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">Logout</button>
         </div>
         
-        {/* --- RIGHT COLUMN --- */}
+        {}
         <div className="md:col-span-2 space-y-6">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">My Posts</h2>
           {isLoading && <p className="text-gray-500 dark:text-gray-400">Loading posts...</p>}
           {error && <p className="text-red-500">Error: {error}</p>}
           
-          {/* 3. Updated grid layout to look better */}
+          {}
           <div className="grid grid-cols-1 gap-6">
             {!isLoading && !error && myPosts.length === 0 && (
               <p className="text-gray-500 dark:text-gray-400">You haven't created any posts yet.</p>
@@ -117,7 +117,7 @@ const ProfileView = ({ user, onLogout, onProfileUpdate, onOpenPostModal }) => {
         </div>
       </div>
       
-      {/* --- MODALS --- */}
+      {}
       <EditProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -126,7 +126,7 @@ const ProfileView = ({ user, onLogout, onProfileUpdate, onOpenPostModal }) => {
       />
       
       <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Delete">
-        {/* ... (Delete confirmation content) ... */}
+        {}
         <div className="space-y-6">
             <p className="text-gray-700 dark:text-gray-300">Are you sure you want to delete this post? This action cannot be undone.</p>
             <div className="flex justify-end gap-x-4">

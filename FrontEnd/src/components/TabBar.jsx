@@ -1,4 +1,4 @@
-// src/components/TabBar.jsx
+
 
 import React from 'react';
 import { CommunityIcon, PostsIcon, PartnerIcon, ProfileIcon } from './Icons.jsx';

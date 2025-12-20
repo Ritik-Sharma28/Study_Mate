@@ -4,7 +4,7 @@ import { DmIcon } from '../Icons.jsx';
 import { getAvatarUrl } from '../../constants.js';
 import { apiFindPartners } from '../../services/apiService.js';
 
-// --- Helper: A Checkbox component for the UI ---
+
 const SkillCheckbox = ({ label, isChecked, onChange }) => (
   <label className={`flex items-center space-x-2 p-2.5 rounded-lg cursor-pointer transition-colors border-2 ${
       isChecked 
@@ -23,19 +23,19 @@ const SkillCheckbox = ({ label, isChecked, onChange }) => (
 
 const FindPartnerView = ({ onStartChat, onViewProfile, user }) => {
     const [filters, setFilters] = useState({
-      teamPref: TEAM_PREFERENCES[0], // 'Team' or 'Solo'
+      teamPref: TEAM_PREFERENCES[0], 
       studyTime: [],
-      skills: [] // This state holds the *search filter*
+      skills: [] 
     });
     
     const [results, setResults] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isSearching, setIsSearching] = useState(false);
-    const [hasSearched, setHasSearched] = useState(false); // To show "No results"
+    const [hasSearched, setHasSearched] = useState(false); 
 
     const USERS_PER_PAGE = 5;
 
-    // --- Filter Handlers ---
+    
     const handleSkillChange = (skill) => {
       setFilters(prev => ({
         ...prev,
@@ -58,7 +58,7 @@ const FindPartnerView = ({ onStartChat, onViewProfile, user }) => {
       setFilters(prev => ({ ...prev, teamPref: e.target.value }));
     };
 
-    // --- Search Logic ---
+    
     const handleFindMatches = async () => {
         if (!user) return; 
 
@@ -72,14 +72,14 @@ const FindPartnerView = ({ onStartChat, onViewProfile, user }) => {
             setResults(matchedUsers);
         } catch (error) {
             console.error("Failed to find partners:", error);
-            setResults([]); // Clear results on error
+            setResults([]); 
         } finally {
             setIsSearching(false);
             setHasSearched(true);
         }
     };
 
-    // --- Pagination Logic ---
+    
     const totalPages = Math.ceil(results.length / USERS_PER_PAGE);
     const startIndex = (currentPage - 1) * USERS_PER_PAGE;
     const currentResults = results.slice(startIndex, startIndex + USERS_PER_PAGE);
@@ -90,7 +90,7 @@ const FindPartnerView = ({ onStartChat, onViewProfile, user }) => {
     return (
         <div className="max-w-4xl mx-auto space-y-6 p-4 md:p-6">
             
-            {/* --- FILTER SECTION --- */}
+            {}
             <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm space-y-5">
               
               <div>
@@ -181,9 +181,9 @@ const FindPartnerView = ({ onStartChat, onViewProfile, user }) => {
                                       </p>
                                     )}
                                     
-                                    {/* --- THIS IS THE FIX --- */}
-                                    {/* We now map over `user.domains` instead of `user.skills` */}
-                                    {/* And we add `|| []` as a safety check */}
+                                    {}
+                                    {}
+                                    {}
                                     <div className="flex flex-wrap gap-1.5 mt-2">
                                         {(user.domains || []).map(domain => (
                                           <span key={domain} className="text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
@@ -191,7 +191,7 @@ const FindPartnerView = ({ onStartChat, onViewProfile, user }) => {
                                           </span>
                                         ))}
                                     </div>
-                                    {/* --- END FIX --- */}
+                                    {}
                                 </div>
                             </button>
                             
@@ -203,7 +203,7 @@ const FindPartnerView = ({ onStartChat, onViewProfile, user }) => {
                 </div>
               )}
 
-              {/* Pagination */}
+              {}
               {results.length > USERS_PER_PAGE && (
                 <div className="flex justify-between items-center pt-4">
                   <button 

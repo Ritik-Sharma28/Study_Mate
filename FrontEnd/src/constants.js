@@ -4,7 +4,7 @@ export const LEARNING_STYLES = ["Visual", "Practical", "Theoretical", "Auditory"
 export const STUDY_TIMES = ["Morning", "Afternoon", "Night", "Flexible"];
 export const TEAM_PREFERENCES = ["Team", "Solo"];
 
-// --- ADDED ---
+
 export const AVATAR_OPTIONS = [
     { id: '7', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chico_pelo_oscuro.png/640px-Chico_pelo_oscuro.png' },
     { id: '1005', url: 'https://picsum.photos/id/1005/200/200' },
@@ -17,30 +17,30 @@ export const AVATAR_OPTIONS = [
     
 ];
 
-// // --- ADDED ---
-// export const AVATAR_OPTIONS = [
-//     { id: '1027', url: 'https://www.behance.net/gallery/10774061/Pokmon-Avatars' },
-//     { id: '1005', url: 'https://tse2.mm.bing.net/th/id/OIP.hkUm7UcOZPQLtncJ4BKkegHaHa?rs=1&pid=ImgDetMain&o=7&rm=3' },
-//     { id: '1011', url: 'https://img.freepik.com/premium-vector/heartwarming-smile-masks-person-who-is-quick-throw-others-bus-order-save_216520-177387.jpg?semt=ais_hybrid' },
-//     { id: '1012', url: 'https://tse2.mm.bing.net/th/id/OIP.GEIwFHUXHAqxCqy84w4qZAAAAA?w=360&h=360&rs=1&pid=ImgDetMain&o=7&rm=3' },
-//     { id: '1025', url: 'https://png.pngtree.com/png-clipart/20220131/original/pngtree-cartoon-girl-happy-expression-lovely-cartoon-hand-painted-character-avatar-png-image_7248564.png' },
-//     { id: '237', url: 'https://tse2.mm.bing.net/th/id/OIP.MDy5bSxUUopNai6fOaszzAHaIj?rs=1&pid=ImgDetMain&o=7&rm=3' },
-//     { id: '3', url: 'https://tse1.mm.bing.net/th/id/OIP.Uh5vfipp67lALX_Q3EUaVQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3' },
-//     { id: '8', url: 'https://tse3.mm.bing.net/th/id/OIP.Ku4KtzBZZBxVR-9ZyiZ_uAHaIx?rs=1&pid=ImgDetMain&o=7&rm=3' },
-// ];
+
+
+
+
+
+
+
+
+
+
+
 
 const avatarMap = new Map(AVATAR_OPTIONS.map(a => [a.id, a.url]));
-// Add a default for safety
+
 avatarMap.set('default', 'https://picsum.photos/id/237/200/200'); 
 
 export const getAvatarUrl = (id) => {
     return avatarMap.get(id) || avatarMap.get('default');
 };
-// --- END ADD ---
+
 
 
 export const SUGGESTED_USERS = [
-    // --- FIX: Added mock _id to all users ---
+    
     { _id: 'mockuser1', name: 'Alice', group: 'Web Devs', avatarId: '1027', skills: ['React', 'JavaScript', 'UI/UX Design'] },
     { _id: 'mockuser2', name: 'Bob', group: 'ML Enthusiasts', avatarId: '1005', skills: ['Python', 'ML'] },
     { _id: 'mockuser3', name: 'Charlie', group: 'Competitive Programmers', avatarId: '1011', skills: ['DSA', 'Python'] },
@@ -50,7 +50,7 @@ export const SUGGESTED_USERS = [
 
 export const DEFAULT_USER = {
     username: 'DemoUser',
-    avatarId: '237', // --- MODIFIED ---
+    avatarId: '237', 
     name: 'Govind',
     email: '22CS045@svnit.ac.in',
     domains: ['Web Dev', 'ML'],
@@ -65,7 +65,7 @@ export const POSTS = [
     { id: 3, author: 'Charlie', authorAvatarId: '1011', title: 'My Competitive Programming Journey', summary: 'Tips and tricks for anyone starting...', content: 'Consistency is key...', tags: ['DSA', 'Algorithms'] }
 ];
 
-// --- ADD THIS NEW MOCK DATA ---
+
 export const COMMUNITY_GROUPS = [
   {
     _id: 'web_devs',
@@ -121,7 +121,7 @@ export const COMMUNITY_GROUPS = [
     description: 'AWS, Azure, or GCP. Talk about certs, services, and serverless.',
     bannerImage: 'https://picsum.photos/id/18/600/200',
     memberCount: 45,
-    members: [], // No mock users have 'Cloud' skill
+    members: [], 
   },
   {
     _id: 'python_programmers',
@@ -153,6 +153,6 @@ export const COMMUNITY_GROUPS = [
     description: 'Docker, Kubernetes, CI/CD, and all things infrastructure.',
     bannerImage: 'https://picsum.photos/id/22/600/200',
     memberCount: 39,
-    members: [], // No mock users have 'DevOps' skill
+    members: [], 
   },
 ];

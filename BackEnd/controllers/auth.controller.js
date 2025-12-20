@@ -1,13 +1,15 @@
 import User from '../models/User.model.js';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import crypto from 'crypto';
+import sendEmail from '../utils/sendEmail.js';
 
-// Helper function to generate a JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
 };
+
 const registerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
@@ -23,18 +25,15 @@ const registerSchema = z.object({
   teamPref: z.string().optional(),
 });
 
-// --- Helper function to set the cookie ---
 const setTokenCookie = (res, token) => {
   res.cookie('jwt', token, {
-    httpOnly: true, // Prevents client-side JS from accessing the cookie
-    secure: process.env.NODE_ENV !== 'development', // Use secure cookies in production
-    sameSite: 'strict', // Prevents CSRF attacks
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== 'development',
+    sameSite: 'strict',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 };
 
-// --- Register User ---
-// POST /api/auth/register
 export const registerUser = async (req, res) => {
   try {
     const userData = registerSchema.parse(req.body);
@@ -50,7 +49,6 @@ export const registerUser = async (req, res) => {
       teamPref,
     } = userData;
 
-    // Check if user (email or username) already exists
     const emailExists = await User.findOne({ email });
     if (emailExists) {
       return res.status(400).json({ message: 'User with this email already exists' });
@@ -74,14 +72,13 @@ export const registerUser = async (req, res) => {
 
     if (user) {
       const token = generateToken(user._id);
-      setTokenCookie(res, token); 
-     res.status(201).json({
+      setTokenCookie(res, token);
+      res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
         username: user.username,
         avatarId: user.avatarId,
-        
         domains: user.domains,
         learningStyle: user.learningStyle,
         studyTime: user.studyTime,
@@ -96,8 +93,6 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// --- Login User ---
-// POST /api/auth/login
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -105,9 +100,8 @@ export const loginUser = async (req, res) => {
 
     if (user && (await user.matchPassword(password))) {
       const token = generateToken(user._id);
-      setTokenCookie(res, token); // 
+      setTokenCookie(res, token);
 
-      // 2. DON'T SEND TOKEN IN RESPONSE
       res.json({
         _id: user._id,
         name: user.name,
@@ -131,7 +125,86 @@ export const loginUser = async (req, res) => {
 export const logoutUser = (req, res) => {
   res.cookie('jwt', '', {
     httpOnly: true,
-    expires: new Date(0), // Set to a date in the past
+    expires: new Date(0),
   });
   res.status(200).json({ message: 'Logged out successfully' });
+};
+
+// @desc    Forgot Password
+// @route   POST /api/auth/forgotpassword
+// @access  Public
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const resetToken = user.getResetPasswordToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset url
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${frontendUrl}/resetpassword/${resetToken}`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Password Reset Token',
+        message,
+      });
+
+      res.status(200).json({ success: true, data: 'Email sent' });
+    } catch (err) {
+      console.error(err);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(500).json({ message: 'Email could not be sent' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Reset Password
+// @route   PUT /api/auth/resetpassword/:resetToken
+// @access  Public
+export const resetPassword = async (req, res) => {
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(req.params.resetToken)
+    .digest('hex');
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid token' });
+    }
+
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Password updated success',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };

@@ -3,12 +3,12 @@ import Post from '../Post.jsx';
 import { NewPostIcon } from '../Icons.jsx';
 import { getAvatarUrl } from '../../constants.js';
 
-// 1. Accept 'user' and 'setToastMessage' props
+
 const PostsView = ({ onOpenPostModal, posts, isLoading, error, user, onLikePost, setToastMessage  , onViewProfile}) => (
-  // 2. Main container is now a centered column
+  
   <div className="max-w-2xl mx-auto space-y-6 p-4 md:p-6">
     
-    {/* 3. New "Create Post" trigger box */}
+    {}
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
       <div className="flex items-center space-x-3">
         <img 
@@ -32,7 +32,7 @@ const PostsView = ({ onOpenPostModal, posts, isLoading, error, user, onLikePost,
       </div>
     </div>
 
-    {/* 4. Loading and Error states */}
+    {}
     {isLoading && (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
@@ -45,7 +45,7 @@ const PostsView = ({ onOpenPostModal, posts, isLoading, error, user, onLikePost,
       </div>
     )}
 
-    {/* 5. The Post Feed */}
+    {}
     {!isLoading && !error && (
       <div className="space-y-6">
         {posts.map(post => (
@@ -54,7 +54,7 @@ const PostsView = ({ onOpenPostModal, posts, isLoading, error, user, onLikePost,
             post={post} 
             user={user} 
             onLikePost={onLikePost}
-            setToastMessage={setToastMessage} // Pass toast setter to each post
+            setToastMessage={setToastMessage} 
             onViewProfile={onViewProfile}
           />
         ))}

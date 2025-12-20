@@ -1,4 +1,4 @@
-// src/components/AppHeader.jsx
+
 
 import React, { useState, useEffect, useRef } from 'react';
 import { SunIcon, MoonIcon, ChatIcon, SearchIcon } from './Icons.jsx';
@@ -11,12 +11,12 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   
-  // NEW: State to handle mobile search expansion
+  
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   
   const searchRef = useRef(null);
 
-  // Debounce Search
+  
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (query.trim().length > 0) {
@@ -39,7 +39,7 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
     return () => clearTimeout(delayDebounceFn);
   }, [query]);
 
-  // Close dropdown when clicking outside
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -54,10 +54,10 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
     onViewProfile(userId);
     setShowDropdown(false);
     setQuery('');
-    setIsMobileSearchOpen(false); // Close mobile search after selection
+    setIsMobileSearchOpen(false); 
   };
 
-  // Helper to close search mode on mobile
+  
   const closeMobileSearch = () => {
     setIsMobileSearchOpen(false);
     setQuery('');
@@ -67,18 +67,18 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
   return (
     <header className="flex justify-between items-center p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm z-20 relative h-16">
       
-      {/* TITLE: Hidden on mobile ONLY when search is active to make space */}
+      {}
       <h1 className={`text-2xl font-bold text-gray-800 dark:text-white capitalize transition-all duration-200 ${isMobileSearchOpen ? 'hidden md:block' : 'block'}`}>
         {title}
       </h1>
 
-      {/* RIGHT SIDE CONTAINER */}
+      {}
       <div className={`flex items-center ${isMobileSearchOpen ? 'flex-1 w-full' : 'space-x-3'}`}>
         
-        {/* --- SEARCH SECTION --- */}
+        {}
         {showSearch && (
           <>
-            {/* 1. Mobile Search Trigger Icon (Visible only on mobile & when search is closed) */}
+            {}
             {!isMobileSearchOpen && (
               <button 
                 onClick={() => setIsMobileSearchOpen(true)}
@@ -88,7 +88,7 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
               </button>
             )}
 
-            {/* 2. The Search Bar (Expandable) */}
+            {}
             <div 
               ref={searchRef}
               className={`
@@ -101,7 +101,7 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
             >
               <div className="flex items-center w-full bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-2 border border-transparent focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 dark:focus-within:ring-blue-900">
                 
-                {/* Back Button (Mobile Only) or Search Icon (Desktop) */}
+                {}
                 {isMobileSearchOpen ? (
                   <button onClick={closeMobileSearch} className="mr-2 text-gray-500 dark:text-gray-400 p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -121,12 +121,12 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onFocus={() => { if(results.length > 0) setShowDropdown(true) }}
-                  autoFocus={isMobileSearchOpen} // Auto focus when opening on mobile
+                  autoFocus={isMobileSearchOpen} 
                 />
                 {isSearching && <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin ml-2 flex-shrink-0"></div>}
               </div>
 
-              {/* Dropdown Results */}
+              {}
               {showDropdown && results.length > 0 && (
                 <div className="absolute top-full mt-2 right-0 left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
                   <div className="py-1">
@@ -150,7 +150,7 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
                 </div>
               )}
               
-              {/* No Results Message */}
+              {}
               {showDropdown && query.length > 0 && !isSearching && results.length === 0 && (
                  <div className="absolute top-full mt-2 right-0 left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-4 text-center z-50">
                     <p className="text-sm text-gray-500 dark:text-gray-400">No users found.</p>
@@ -160,8 +160,8 @@ const AppHeader = ({ title, theme, toggleTheme, onShowChats, showSearch, onViewP
           </>
         )}
 
-        {/* --- ACTION BUTTONS --- */}
-        {/* Wrapped in a div that prevents shrinking so they are never crushed */}
+        {}
+        {}
         <div className="flex items-center space-x-2 flex-shrink-0">
           <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
             {theme === 'light' ? <MoonIcon /> : <SunIcon />}

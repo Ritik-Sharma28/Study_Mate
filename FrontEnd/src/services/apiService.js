@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-// --- 1. CREATE A NEW AXIOS INSTANCE ---
-// This reads the VITE_API_BASE_URL from your .env file
+
+
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  withCredentials: true, // This tells axios to send cookies with requests
+  withCredentials: true,
 });
 
 
@@ -13,37 +13,65 @@ export const apiSearchUsers = async (query) => {
   return data;
 };
 
-// --- Auth Functions ---
+
 export const apiLogin = async (email, password) => {
-  // URL is now just '/auth/login'
+
   const { data } = await apiClient.post('/auth/login', { email, password });
   return data;
 };
 
 export const apiRegister = async (formData) => {
-  // URL is now just '/auth/register'
+
   const { data } = await apiClient.post('/auth/register', formData);
   return data;
 };
 
-// 1. Replaces apiGetPosts
+export const apiForgotPassword = async (email) => {
+  const { data } = await apiClient.post('/auth/forgotpassword', { email });
+  return data;
+};
+
+export const apiResetPassword = async (token, password) => {
+  const { data } = await apiClient.put(`/auth/resetpassword/${token}`, { password });
+  return data;
+};
+
+
+
+
+export const apiGetComments = async (postId) => {
+  const { data } = await apiClient.get(`/comments/${postId}`);
+  return data;
+};
+
+export const apiAddComment = async (postId, content, parentCommentId = null) => {
+  const { data } = await apiClient.post(`/comments/${postId}`, { content, parentCommentId });
+  return data;
+};
+
+export const apiDeleteComment = async (commentId) => {
+  const { data } = await apiClient.delete(`/comments/${commentId}`);
+  return data;
+};
+
+
 export const apiGetRecommendedPosts = async (userId) => {
-  // GET /api/v1/posts/recommend-posts?user_id=...
+
   const { data } = await apiClient.get(`/v1/posts/recommend-posts`, {
     params: { user_id: userId }
   });
-  return data.recommended; // The Python API returns an object { "recommended": [...] }
+  return data.recommended;
 };
 
-// 2. New Find Partner function
+
 export const apiFindPartners = async (userId, filters) => {
-  // filters = { skills: [], studyTime: [], teamPref: 'Team' }
+
   const params = new URLSearchParams();
   params.append('user_id', userId);
-  
-  // Add filters if they exist
+
+
   if (filters.skills && filters.skills.length > 0) {
-    filters.skills.forEach(skill => params.append('domain', skill)); // 'skills' in frontend is 'domain' in API
+    filters.skills.forEach(skill => params.append('domain', skill));
   }
   if (filters.studyTime && filters.studyTime.length > 0) {
     filters.studyTime.forEach(time => params.append('study_time', time.toLowerCase()));
@@ -52,24 +80,24 @@ export const apiFindPartners = async (userId, filters) => {
     params.append('team_pref', filters.teamPref.toLowerCase());
   }
 
-  // GET /api/v1/partners/find-partner?user_id=...&domain=react&team_pref=team
+
   const { data } = await apiClient.get(`/v1/partners/find-partner`, { params });
-  return data.matches; // The Python API returns an object { "matches": [...] }
+  return data.matches;
 };
 
-// POST /api/posts
+
 export const apiCreatePost = async (postData) => {
-  // postData will be { title, summary, content, tags }
+
   const { data } = await apiClient.post('/posts', postData);
   return data;
 };
-// POST /api/posts/:id/like
+
 export const apiLikePost = async (postId) => {
   const { data } = await apiClient.put(`/posts/${postId}/like`);
-  return data; // Returns the updated post
+  return data;
 };
 
-// --- END ADD ---
+
 
 export const getMyPosts = async (req, res) => {
   try {
@@ -83,13 +111,13 @@ export const getMyPosts = async (req, res) => {
   }
 };
 
-// --- NEW USER FUNCTIONS ---
+
 export const apiUpdateUserProfile = async (profileData) => {
   const { data } = await apiClient.put('/users/profile', profileData);
   return data;
 };
 
-// --- NEW POST FUNCTIONS ---
+
 export const apiGetMyPosts = async () => {
   const { data } = await apiClient.get('/posts/myposts');
   return data;
@@ -106,13 +134,13 @@ export const apiDeletePost = async (postId) => {
 };
 
 
-// --- NEW USER FUNCTIONS ---
+
 export const apiGetUserById = async (userId) => {
   const { data } = await apiClient.get(`/users/${userId}`);
   return data;
 };
 
-// --- NEW POST FUNCTIONS ---
+
 export const apiGetPostsByUserId = async (userId) => {
   const { data } = await apiClient.get(`/posts/user/${userId}`);
   return data;
@@ -134,9 +162,9 @@ export const apiGetMyChats = async () => {
 };
 
 
-// ... (all existing API functions)
 
-// --- NEW GROUP FUNCTIONS ---
+
+
 
 export const apiGetAllGroups = async () => {
   const { data } = await apiClient.get('/groups');
@@ -163,26 +191,26 @@ export const apiGetGroupMembers = async (groupId) => {
   return data;
 };
 
-// This calls the POST /api/groups/seed route
+
 export const apiSeedGroups = async () => {
   const { data } = await apiClient.post('/groups/seed');
   return data;
 };
-// --- END ADD ---
+
 
 export const apiLogout = async () => {
   const { data } = await apiClient.post('/auth/logout');
   return data;
 };
 
-// ... (error interceptor)
 
-// --- ERROR HANDLING (Optional but good) ---
-// We can add a "response interceptor" to handle errors globally
+
+
+
 apiClient.interceptors.response.use(
-  (response) => response, // If response is good, just return it
+  (response) => response,
   (error) => {
-    // If response is bad, log it and re-throw a clearer error
+
     const message = error.response?.data?.message || error.message;
     console.error("API Error:", message);
     return Promise.reject(new Error(message));

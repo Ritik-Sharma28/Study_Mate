@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const userSchema = mongoose.Schema(
   {
@@ -21,13 +22,13 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    // --- MODIFIED ---
+
     avatarId: {
       type: String,
       required: true,
-      default: 'default', // Set a default ID
+      default: 'default',
     },
-    // --- END MODIFICATION ---
+
     domains: {
       type: [String],
       default: [],
@@ -41,18 +42,20 @@ const userSchema = mongoose.Schema(
     teamPref: {
       type: String,
     },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   {
     timestamps: true,
   }
 );
 
-// Method to compare entered password with hashed password
+
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Middleware to hash password before saving
+
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
@@ -60,6 +63,19 @@ userSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+
+userSchema.methods.getResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
 
 const User = mongoose.model('User', userSchema);
 

@@ -2,9 +2,6 @@ import User from '../models/User.model.js';
 import Post from '../models/Post.model.js';
 import mongoose from 'mongoose';
 
-// ==========================================
-// 1. THE MASSIVE KNOWLEDGE BASE (FIXED SYNTAX)
-// ==========================================
 
 const DOMAIN_KNOWLEDGE_BASE = {
     "web": [
@@ -45,9 +42,7 @@ const DOMAIN_KNOWLEDGE_BASE = {
     ]
 };
 
-// ==========================================
-// 2. HELPER FUNCTIONS 
-// ==========================================
+
 
 const getSearchTerms = (domainQueries) => {
     const expandedSearchSet = new Set();
@@ -57,14 +52,12 @@ const getSearchTerms = (domainQueries) => {
         const queryClean = userQuery.toLowerCase().trim();
         expandedSearchSet.add(queryClean);
 
-        // Case 1: User searched a Broad Domain (e.g., "web")
         if (DOMAIN_KNOWLEDGE_BASE[queryClean]) {
             DOMAIN_KNOWLEDGE_BASE[queryClean].forEach(term => expandedSearchSet.add(term));
         }
             
-        // Case 2: User searched a Specific Skill (e.g., "react")
         for (const domain in DOMAIN_KNOWLEDGE_BASE) {
-            // Note: DOMAIN_KNOWLEDGE_BASE[domain] is now an Array, use .includes()
+
             if (DOMAIN_KNOWLEDGE_BASE[domain].includes(queryClean)) {
                 expandedSearchSet.add(domain);
             }
@@ -91,17 +84,17 @@ const calculateAdvancedScore = (expandedKeywords, postTags, userRawDomains) => {
     const userRawSet = new Set(userRawDomains.map(d => d.toLowerCase()));
 
     for (const tag of postTagsClean) {
-        // 1. Raw Domain Match (Highest weight)
+        
         if (userRawSet.has(tag)) {
             score += 1500;
             continue;
         }
-        // 2. Expanded Keyword Match (High weight)
+        
         if (expandedKeywords.has(tag)) {
             score += 800;
             continue;
         }
-        // 3. Partial/Substring Match (Medium weight)
+        
         for (const keyword of expandedKeywords) {
             if (keyword.length > 2 && tag.length > 2) {
                 if (keyword.includes(tag) || tag.includes(keyword)) {
@@ -115,9 +108,9 @@ const calculateAdvancedScore = (expandedKeywords, postTags, userRawDomains) => {
 };
 
 
-// ==========================================
-// 3. RECOMMEND POSTS (/api/v1/posts/recommend-posts)
-// ==========================================
+
+
+
 
 export const recommendPosts = async (req, res) => {
     const userId = req.query.user_id;
@@ -173,7 +166,7 @@ export const recommendPosts = async (req, res) => {
         rankedPosts.sort((a, b) => b.score - a.score);
         const topPosts = rankedPosts.slice(0, 30);
 
-        // Fetch authors for the top posts
+        
         const postIds = topPosts.map(item => item.post._id);
         const postsWithAuthor = await Post.find({ _id: { $in: postIds } })
             .populate('author', 'name avatarId')
@@ -182,7 +175,7 @@ export const recommendPosts = async (req, res) => {
         const finalResults = postsWithAuthor.map(p => {
             const scoredItem = topPosts.find(item => item.post._id.equals(p._id));
             
-            // Convert ObjectIds to strings for the frontend
+            
             p.likes = p.likes.map(id => id.toString());
             p._score_breakdown = scoredItem ? scoredItem.debug : {};
             
@@ -197,9 +190,9 @@ export const recommendPosts = async (req, res) => {
     }
 };
 
-// ==========================================
-// 4. FIND PARTNER (/api/v1/partners/find-partner)
-// ==========================================
+
+
+
 
 export const findPartner = async (req, res) => {
     const { user_id: currentUserId, domain: domainOverride, study_time: timeOverride, team_pref: teamOverride } = req.query;
@@ -234,7 +227,7 @@ export const findPartner = async (req, res) => {
             let score = 0;
             let debugReasons = [];
 
-            // 1. Score Skills 
+            
             const candidateDomains = new Set((candidate.domains || []).map(d => d.toLowerCase()));
             let numMatches = 0;
             
@@ -249,7 +242,7 @@ export const findPartner = async (req, res) => {
                 debugReasons.push(`${numMatches} Skill Match(es)`);
             }
             
-            // 2. Score Study Time (50 points)
+            
             if (searchTime) {
                 const candTime = candidate.studyTime;
                 if (candTime && candTime.toLowerCase() === searchTime) {
@@ -260,7 +253,7 @@ export const findPartner = async (req, res) => {
                 }
             }
             
-            // 3. Score Team Preference (30 points)
+            
             if (searchTeam) {
                 const candTeam = candidate.teamPref;
                 if (candTeam && candTeam.toLowerCase() === searchTeam) {
@@ -269,7 +262,7 @@ export const findPartner = async (req, res) => {
                 }
             }
 
-            // 4. Profile Bonus (5 points)
+            
             if (candidate.bio) {
                 score += 5; 
                 debugReasons.push("Has Bio");
@@ -282,7 +275,7 @@ export const findPartner = async (req, res) => {
             });
         }
 
-        // Sort and format output
+        
         scoredCandidates.sort((a, b) => b.score - a.score);
         
         const finalResults = scoredCandidates.slice(0, 50).map(item => {

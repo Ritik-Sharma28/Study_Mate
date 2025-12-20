@@ -1,10 +1,10 @@
 import User from '../models/User.model.js';
 
-// @desc    Get user profile
-// @route   GET /api/users/profile
-// @access  Private
+
+
+
 const getUserProfile = async (req, res) => {
-  // We get req.user from our 'protect' middleware
+  
   const user = await User.findById(req.user._id).select('-password');
   if (user) {
     res.json(user);
@@ -13,9 +13,9 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// @desc    Update user profile
-// @route   PUT /api/users/profile
-// @access  Private
+
+
+
 const updateUserProfile = async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -47,7 +47,7 @@ const updateUserProfile = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password -email'); // Don't send private info
+    const user = await User.findById(req.params.id).select('-password -email'); 
 
     if (user) {
       res.json(user);
@@ -60,19 +60,19 @@ const getUserById = async (req, res) => {
   }
 };
 
-// @access  Private
+
 const searchUsers = async (req, res) => {
   try {
     const keyword = req.query.query
       ? {
-          name: { $regex: req.query.query, $options: 'i' }, // Case-insensitive regex
+          name: { $regex: req.query.query, $options: 'i' }, 
         }
       : {};
 
-    // Find users matching the keyword, excluding the current user
+    
     const users = await User.find({ ...keyword, _id: { $ne: req.user._id } })
       .select('name avatarId')
-      .limit(10); // Limit results to 10 for performance
+      .limit(10); 
 
     res.json(users);
   } catch (error) {

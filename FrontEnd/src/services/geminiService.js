@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const getStudyAdvice = async (userProfile) => {
-    // In Vite, environment variables must be prefixed with VITE_
+    
     const apiKey = import.meta.env.VITE_API_KEY;
 
     if (!apiKey) {

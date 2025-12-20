@@ -1,9 +1,9 @@
 import Message from '../models/Message.model.js';
 import User from '../models/User.model.js';
 
-// @desc    Get all messages for a room
-// @route   GET /api/messages/dm/:roomId
-// @access  Private
+
+
+
 const getDmMessages = async (req, res) => {
   try {
     const messages = await Message.find({ dmRoom: req.params.roomId })
@@ -15,9 +15,9 @@ const getDmMessages = async (req, res) => {
   }
 };
 
-// @desc    Get all messages for a group
-// @route   GET /api/messages/group/:groupId
-// @access  Private
+
+
+
 const getGroupMessages = async (req, res) => {
   try {
     const messages = await Message.find({ group: req.params.groupId })
@@ -29,15 +29,15 @@ const getGroupMessages = async (req, res) => {
   }
 };
 
-// @desc    Get the user's chat list (DMs ONLY)
-// @route   GET /api/messages/my-chats
-// @access  Private
+
+
+
 const getChatList = async (req, res) => {
   try {
     const userId = req.user._id;
     const allChatsMap = new Map();
 
-    // --- 1. DM LOGIC ---
+    
     const dmMessages = await Message.find({
       dmRoom: { $regex: new RegExp(userId.toString()) },
     })
@@ -49,7 +49,7 @@ const getChatList = async (req, res) => {
         const idParts = msg.dmRoom.split('__');
         const otherUserId = idParts[0].toString() === userId.toString() ? idParts[1] : idParts[0];
         
-        // Fetch the other user's info
+        
         const otherUser = await User.findById(otherUserId).select('name avatarId');
 
         if (otherUser) {
@@ -67,7 +67,7 @@ const getChatList = async (req, res) => {
       }
     }
 
-    // --- 2. CONVERT & SORT ---
+    
     const allChats = [...allChatsMap.values()];
     
     allChats.sort(

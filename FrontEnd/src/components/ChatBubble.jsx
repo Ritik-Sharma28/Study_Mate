@@ -6,7 +6,7 @@ const ChatBubble = ({ message, isSender , }) => {
     console.warn("ChatBubble received an invalid message:", message);
     return null;
   }
-  // Format timestamp to just "5:55 PM"
+  
   const time = new Date(message.createdAt).toLocaleTimeString(undefined, {
     hour: 'numeric',
     minute: '2-digit'

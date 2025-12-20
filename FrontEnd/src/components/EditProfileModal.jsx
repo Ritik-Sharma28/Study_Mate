@@ -7,7 +7,7 @@ const EditProfileModal = ({ user, isOpen, onClose, onProfileUpdate }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Update form when user prop changes (in case modal is open and user data updates)
+  
   React.useEffect(() => {
     setFormData(user);
   }, [user]);
@@ -33,7 +33,7 @@ const EditProfileModal = ({ user, isOpen, onClose, onProfileUpdate }) => {
     setError(null);
     try {
       await onProfileUpdate(formData);
-      onClose(); // Close modal on success
+      onClose(); 
     } catch (err) {
       setError(err.message);
     } finally {
