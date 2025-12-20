@@ -3,13 +3,24 @@ import { io } from 'socket.io-client';
 let socket;
 
 
-const URL = import.meta.env.VITE_API_BASE_URL === '/api' 
-  ? undefined 
-  : import.meta.env.VITE_API_BASE_URL;
+const getSocketUrl = () => {
+  const url = import.meta.env.VITE_API_BASE_URL;
+
+  if (url === '/api') {
+    return undefined;
+  }
+
+  if (url && url.endsWith('/api')) {
+    return url.replace(/\/api$/, '');
+  }
+
+  
+  return url;
+};
 
 export const connectSocket = () => {
   if (!socket) {
-    socket = io(URL, {
+    socket = io(getSocketUrl(), {
       withCredentials: true,
       transports: ['websocket']
     });
