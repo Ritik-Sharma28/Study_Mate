@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 const apiClient = axios.create({
-  baseURL: 'https://studymate-node.onrender.com/api',
+  baseURL:  import.meta.env.VITE_API_KEY,
   withCredentials: true,
 });
 
