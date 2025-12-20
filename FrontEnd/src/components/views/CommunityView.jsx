@@ -309,9 +309,20 @@ const CommunityView = ({ onViewProfile, user, initialGroupId, onGroupOpened }) =
         apiGetAllGroups(),
         apiGetMyGroups()
       ]);
-      
-      setAllGroups(allGroupsData);
-      setJoinedGroupIds(new Set(myGroupsData.map(g => g._id)));
+      if (Array.isArray(allGroupsData)) {
+        setAllGroups(allGroupsData);
+      } else {
+        setAllGroups([]);
+        console.warn("apiGetAllGroups did not return an array:", allGroupsData);
+      }
+
+      if (Array.isArray(myGroupsData)) {
+        setJoinedGroupIds(new Set(myGroupsData.map(g => g._id)));
+      } else {
+        setJoinedGroupIds(new Set());
+        console.warn("apiGetMyGroups did not return an array:", myGroupsData);
+      }
+
     } catch (error) {
       console.error("Failed to load community data:", error);
       setError(error.message);

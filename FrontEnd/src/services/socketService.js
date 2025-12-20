@@ -2,14 +2,13 @@ import { io } from 'socket.io-client';
 
 let socket;
 
-const URL = window.location.origin;
+const URL ='https://studymate-node.onrender.com';
 // const baseUrl = import.meta.env.VITE_API_BASE_URL;
 // const URL = baseUrl ? baseUrl.replace('/api', '') : undefined;
 
 export const connectSocket = () => {
   if (!socket) {
     socket = io(URL, {
-      path: '/socket.io/',
       withCredentials: true,
       transports: ['websocket']
     });
