@@ -56,7 +56,14 @@ const MainAppScreen = ({ user, onStartChat, onLogout, theme, toggleTheme, onProf
       setIsLoadingPosts(true);
       apiGetRecommendedPosts(user._id)
         .then(fetchedPosts => {
-          setPosts(fetchedPosts);
+          
+          if (Array.isArray(fetchedPosts)) {
+            setPosts(fetchedPosts);
+          } else {
+            console.error("API Error: Received invalid data", fetchedPosts);
+            setPosts([]); 
+          }
+
           setPostsError(null);
         })
         .catch(err => {
