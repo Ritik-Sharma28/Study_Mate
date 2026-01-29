@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 const apiClient = axios.create({
-  baseURL:  import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
 
@@ -112,10 +112,17 @@ export const getMyPosts = async (req, res) => {
 };
 
 
+
 export const apiUpdateUserProfile = async (profileData) => {
   const { data } = await apiClient.put('/users/profile', profileData);
   return data;
 };
+
+export const apiGetProfile = async () => {
+  const { data } = await apiClient.get('/users/profile');
+  return data;
+};
+
 
 
 export const apiGetMyPosts = async () => {

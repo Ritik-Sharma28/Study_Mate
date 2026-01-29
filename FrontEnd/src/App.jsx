@@ -6,19 +6,35 @@ import ChatListView from './components/views/ChatListView.jsx';
 import UserProfileView from './components/views/UserProfileView.jsx';
 import ForgotPasswordView from './components/views/ForgotPasswordView.jsx';
 import ResetPasswordView from './components/views/ResetPasswordView.jsx';
-import { DEFAULT_USER } from './constants.js';
 import { connectSocket, disconnectSocket } from './services/socketService.js';
-import { apiLogout } from './services/apiService.js';
+import { apiLogout, apiGetProfile } from './services/apiService.js';
 
 const App = () => {
 
   const [currentView, setCurrentView] = useState('auth');
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [chattingWith, setChattingWith] = useState(null);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
 
   const [viewingProfileId, setViewingProfileId] = useState(null);
+
   const [resetToken, setResetToken] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await apiGetProfile();
+        setLoggedInUser(user);
+        setCurrentView('main');
+      } catch (err) {
+        console.log("Not logged in or session expired");
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -158,6 +174,14 @@ const App = () => {
         />;
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="w-full h-full flex justify-center items-center h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full flex justify-center items-center p-0 md:p-4">
