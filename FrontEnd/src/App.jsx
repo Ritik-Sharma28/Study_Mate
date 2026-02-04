@@ -8,6 +8,7 @@ import ForgotPasswordView from './components/views/ForgotPasswordView.jsx';
 import ResetPasswordView from './components/views/ResetPasswordView.jsx';
 import { connectSocket, disconnectSocket } from './services/socketService.js';
 import { apiLogout, apiGetProfile } from './services/apiService.js';
+import LoadingScreen from './components/LoadingScreen.jsx';
 
 const App = () => {
 
@@ -176,11 +177,7 @@ const App = () => {
   };
 
   if (isCheckingAuth) {
-    return (
-      <div className="w-full h-full flex justify-center items-center h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (

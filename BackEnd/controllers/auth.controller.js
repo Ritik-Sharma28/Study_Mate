@@ -6,7 +6,7 @@ import sendEmail from '../utils/sendEmail.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+    expiresIn: '1d',
   });
 };
 
@@ -30,7 +30,7 @@ const setTokenCookie = (res, token) => {
     httpOnly: true,
    secure: true,      
     sameSite: 'none',
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+    maxAge: 1 * 24 * 60 * 60 * 1000,
   });
 };
 
