@@ -3,7 +3,7 @@
 A full-stack social learning platform designed to help students find study partners, join groups, and explore communities for their education. Built with the MERN stack and powered by real-time features.
 
 ## 🔗 Live Demo
-**[View Live Application]([YOUR_LIVE_LINK_HERE](https://studymate-frontend-kq19.onrender.com/))**
+**https://studymate-frontend-kq19.onrender.com/**
 
 ---
 
