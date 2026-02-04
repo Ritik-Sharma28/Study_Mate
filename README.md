@@ -1,9 +1,9 @@
 # 📚 Study Mate
 
-A full-stack social learning platform designed to help students find study partners, join groups, and explore community. Built with the MERN stack and powered by real-time features.
+A full-stack social learning platform designed to help students find study partners, join groups, and explore communities for their education. Built with the MERN stack and powered by real-time features.
 
 ## 🔗 Live Demo
-**[[View Live Application](YOUR_LIVE_LINK_HERE)](https://studymate-frontend-kq19.onrender.com/)**
+**[View Live Application]([YOUR_LIVE_LINK_HERE](https://studymate-frontend-kq19.onrender.com/))**
 
 ---
 
@@ -45,45 +45,70 @@ Follow these steps to run the project locally.
 ```bash
 git clone [https://github.com/your-username/study-mate.git](https://github.com/your-username/study-mate.git)
 cd study-mate
-2. Backend Setup
+
+```
+
+### 2. Backend Setup
+
 Navigate to the backend folder and install dependencies:
 
-Bash
+```bash
 cd BackEnd
 npm install
-Create a .env file in the BackEnd directory and add the following variables:
 
-Code snippet
+```
+
+Create a `.env` file in the `BackEnd` directory and add the following variables:
+
+```env
 PORT=5000
 MONGO=mongodb+srv://<your-mongo-uri>
 FRONTEND_URL=http://localhost:5173
 JWT_SECRET=your_super_secret_key
 NODE_ENV=development
 # Add email service credentials if needed for Nodemailer
+
+```
+
 Start the backend server:
 
-Bash
+```bash
 npm run dev
-3. Frontend Setup
+
+```
+
+### 3. Frontend Setup
+
 Open a new terminal, navigate to the frontend folder, and install dependencies:
 
-Bash
+```bash
 cd FrontEnd
 npm install
-Create a .env.local file in the FrontEnd directory:
 
-Code snippet
-GEMINI_API_KEY=your_google_gemini_api_key
+```
+
+Create a `.env.local` file in the `FrontEnd` directory:
+
+```env
 # If you are not using a proxy in vite.config.js, specify the API URL:
 VITE_API_URL=http://localhost:5000
+
+```
+
 Start the frontend application:
 
-Bash
+```bash
 npm run dev
-The app should now be running at http://localhost:5173.
 
-📂 Project Structure
-Plaintext
+```
+
+The app should now be running at `http://localhost:5173`.
+
+---
+
+## 📂 Project Structure
+
+```text
 Study_Mate/
 ├── BackEnd/
 │   ├── config/         # DB connection
@@ -98,8 +123,17 @@ Study_Mate/
 │   │   ├── services/   # API & Socket services
 │   │   └── App.jsx     # Main application component
 │   └── vite.config.js  # Vite configuration
-🤝 Contributing
+
+```
+
+## 🤝 Contributing
+
 Contributions are welcome! Please fork the repository and create a pull request.
 
-📄 License
+## 📄 License
+
 This project is licensed under the MIT License.
+
+```
+
+```
